@@ -1,4 +1,4 @@
-package com.example.erik_spectre.tootsigymmb
+package com.example.erik_spectre.tootsigymmb.Controller
 
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -8,8 +8,15 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import com.example.erik_spectre.tootsigymmb.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import android.animation.ObjectAnimator
+import android.graphics.Color
+import android.support.graphics.drawable.ArgbEvaluator
+import com.example.erik_spectre.tootsigymmb.Utilities.ColorSwitcher
+import kotlinx.android.synthetic.main.nav_header_main.*
+
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -56,29 +63,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        // Handle navigation view item clicks here.
+        var closeNav = true
         when (item.itemId) {
-            R.id.nav_camera -> {
-                // Handle the camera action
-            }
-            R.id.nav_gallery -> {
+            R.id.nav_grid -> {
 
             }
-            R.id.nav_slideshow -> {
+            R.id.nav_canvas -> {
 
             }
-            R.id.nav_manage -> {
+            R.id.nav_database -> {
 
             }
-            R.id.nav_share -> {
-
-            }
-            R.id.nav_send -> {
-
+            R.id.nav_connection -> {
+                closeNav = false
+                ColorSwitcher.changeBackground(connectionBar, Color.RED, Color.YELLOW)
             }
         }
 
-        drawer_layout.closeDrawer(GravityCompat.START)
+        if (closeNav)
+            drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }
 }
