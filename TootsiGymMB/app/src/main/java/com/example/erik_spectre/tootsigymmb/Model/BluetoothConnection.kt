@@ -11,45 +11,11 @@ import android.bluetooth.le.ScanSettings
 import android.graphics.Color
 import android.view.MenuItem
 import android.widget.GridLayout
-import android.widget.TextView
 import com.beepiz.blegattcoroutines.experimental.genericaccess.GenericAccess
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.*
 import com.example.erik_spectre.tootsigymmb.Utilities.*
 
-class BleScanCallback(resultMap: MutableMap<String?, BluetoothDevice?>) : ScanCallback() {
-
-    private var resultOfScan = resultMap
-
-    private val main = MainActivity()
-
-    override fun onScanResult(callbackType: Int, result: ScanResult?) {
-        addScanResult(result)
-        println("I found a ble device ${result?.device?.address}, ${result?.device?.name}")
-        if (result?.device?.address == MOONBOARD_MAC) {
-            println("Stopped")
-            //main.stopScan()
-        }
-        //Toast.makeText(main, "${result?.device?.name}", Toast.LENGTH_LONG).show()
-        //main.debugText.text = "I found a ble device ${result?.device?.address}, ${result?.device?.name}"
-    }
-
-    override fun onBatchScanResults(results: MutableList<ScanResult>?) {
-        results?.forEach { result -> addScanResult(result) }
-    }
-
-    override fun onScanFailed(errorCode: Int) {
-        println("Bluetooth LE scan failed. Error code: $errorCode")
-        //main.debugText.text = "Error"
-        //Toast.makeText(main, "Scan failed", Toast.LENGTH_LONG).show()
-    }
-
-    private fun addScanResult(scanResult: ScanResult?) {
-        val bleDevice = scanResult?.device
-        val deviceAddress = bleDevice?.address
-        resultOfScan[deviceAddress] = bleDevice
-    }
-}
 
 class BLE(private val context: Context) {
 
@@ -59,7 +25,6 @@ class BLE(private val context: Context) {
     lateinit var connectionTextView: MenuItem
 
     lateinit var adapter : BluetoothAdapter
-    lateinit var bleScanner : BluetoothLeScanner
     lateinit var bleManager : BluetoothManager
 
     lateinit var mainService : BluetoothGattService
@@ -123,7 +88,7 @@ class BLE(private val context: Context) {
         }.build()
         bleManager.adapter.bluetoothLeScanner?.startScan(null, scanSettings, scanCallback)
 
-        parseScanResults()
+        connectToDevice()
     }
 
     fun disconnect() {
@@ -136,6 +101,14 @@ class BLE(private val context: Context) {
     private val scanCallback = object : ScanCallback() {
         override fun onScanFailed(errorCode: Int) {
             println("Scan failed. Errorcode: $errorCode")
+        }
+
+        override fun onScanResult(callbackType: Int, result: ScanResult?) {
+            super.onScanResult(callbackType, result);
+            println("I found a ble device ${result?.device?.address}, ${result?.device?.name}")
+            if (result?.device?.address == MOONBOARD_MAC) {
+                //Device found
+            }
         }
     }
 
@@ -163,7 +136,7 @@ class BLE(private val context: Context) {
         }
     }
 
-    fun parseScanResults(connectionTimeOut: Long = 5000L) {
+    fun connectToDevice(connectionTimeOut: Long = 5000L) {
         operationAttempt?.cancel()
         operationAttempt = launch(UI) {
             bleManager.adapter.getRemoteDevice(MOONBOARD_MAC).useBasic(connectionTimeOut) { device, services ->
