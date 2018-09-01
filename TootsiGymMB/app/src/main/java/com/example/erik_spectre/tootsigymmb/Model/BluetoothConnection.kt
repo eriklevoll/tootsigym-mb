@@ -9,12 +9,13 @@ import com.beepiz.bluetooth.gattcoroutines.experimental.GattConnection
 import com.example.erik_spectre.tootsigymmb.Controller.MainActivity
 import android.bluetooth.le.ScanSettings
 import android.graphics.Color
+import android.view.MenuItem
 import android.widget.GridLayout
+import android.widget.TextView
 import com.beepiz.blegattcoroutines.experimental.genericaccess.GenericAccess
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.*
 import com.example.erik_spectre.tootsigymmb.Utilities.*
-import kotlinx.android.synthetic.main.nav_header_main.*
 
 class BleScanCallback(resultMap: MutableMap<String?, BluetoothDevice?>) : ScanCallback() {
 
@@ -52,9 +53,10 @@ class BleScanCallback(resultMap: MutableMap<String?, BluetoothDevice?>) : ScanCa
 
 class BLE(private val context: Context) {
 
-    private var connectionActive = false
+    var connectionActive = false
 
-    lateinit var colorBar: GridLayout
+    lateinit var connectionColorBar: GridLayout
+    lateinit var connectionTextView: MenuItem
 
     lateinit var adapter : BluetoothAdapter
     lateinit var bleScanner : BluetoothLeScanner
@@ -73,7 +75,37 @@ class BLE(private val context: Context) {
     }
 
     fun setConnectionBar(bar: GridLayout) {
-        colorBar = bar
+        connectionColorBar = bar
+    }
+
+    fun setConnectionText(element: MenuItem) {
+        connectionTextView = element
+    }
+
+    fun setConnectionState(state: String) {
+        when (state) {
+            "Disconnected" -> {
+                if (connectionActive)
+                    ColorSwitcher.changeBackground(connectionColorBar, Color.BLUE, Color.RED)
+                else
+                    ColorSwitcher.changeBackground(connectionColorBar, Color.YELLOW, Color.RED)
+                connectionTextView.title = "Connect"
+                connectionActive = false
+            }
+            "Connecting" -> {
+                ColorSwitcher.changeBackground(connectionColorBar, Color.RED, Color.YELLOW)
+                connectionTextView.title = "Connecting"
+            }
+            "Connected" -> {
+                ColorSwitcher.changeBackground(connectionColorBar, Color.YELLOW, Color.BLUE)
+                connectionTextView.title = "Disconnect"
+                connectionActive = true
+            }
+            "Disconnecting" -> {
+                ColorSwitcher.changeBackground(connectionColorBar, Color.BLUE, Color.YELLOW)
+                connectionTextView.title = "Disconnecting"
+            }
+        }
     }
 
     fun adapterEnabled() : Boolean {
@@ -94,6 +126,13 @@ class BLE(private val context: Context) {
         parseScanResults()
     }
 
+    fun disconnect() {
+        operationAttempt = launch(UI) {
+            mainDevice.close()
+        }
+        setConnectionState("Disconnected")
+    }
+
     private val scanCallback = object : ScanCallback() {
         override fun onScanFailed(errorCode: Int) {
             println("Scan failed. Errorcode: $errorCode")
@@ -112,11 +151,12 @@ class BLE(private val context: Context) {
             block(deviceConnection, services)
         } catch (e: TimeoutCancellationException) {
             println("Connection timed out after $timeout milliseconds!")
+            setConnectionState("Disconnected")
             throw e
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            println(e)
+            println("Exception: $e")
         } finally {
             //deviceConnection.close()
             //println("Closed!")
@@ -138,7 +178,8 @@ class BLE(private val context: Context) {
                                 println("Double Yes!")
                                 mainChar = it
                                 connectionActive = true
-                                ColorSwitcher.changeBackground(colorBar, Color.YELLOW, Color.BLUE)
+                                //ColorSwitcher.changeBackground(connectionColorBar, Color.YELLOW, Color.BLUE)
+                                setConnectionState("Connected")
                                 println("Found Moonboard")
                             }
                         }

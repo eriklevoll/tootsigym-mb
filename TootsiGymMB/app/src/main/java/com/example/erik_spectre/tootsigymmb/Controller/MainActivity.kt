@@ -14,12 +14,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.support.v4.content.PermissionChecker
 import com.example.erik_spectre.tootsigymmb.Model.BLE
 import com.example.erik_spectre.tootsigymmb.Utilities.ADAPTER_STATE_ON
-import com.example.erik_spectre.tootsigymmb.Utilities.ColorSwitcher
 import com.example.erik_spectre.tootsigymmb.Utilities.REQUEST_BLUETOOTH
 import com.example.erik_spectre.tootsigymmb.Utilities.REQUEST_COARSE_LOCATION
 import kotlinx.android.synthetic.main.nav_header_main.*
@@ -90,10 +88,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.nav_connection -> {
                 closeNav = false
+
                 BleConnection.setConnectionBar(connectionBar)
-                ColorSwitcher.changeBackground(connectionBar, Color.RED, Color.YELLOW)
+                BleConnection.setConnectionText(item)
+                BleConnection.setConnectionState("Connecting")
+
                 //Check bluetooth adapter state and start scan when ready
-                checkPermissions()
+                if (!BleConnection.connectionActive) {
+                    InitAdapter()
+                } else {
+                    BleConnection.disconnect()
+                }
             }
         }
 
@@ -102,7 +107,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    fun checkPermissions(checkCounter: Int = 0) {
+    fun InitAdapter(checkCounter: Int = 0) {
         if (!BleConnection.adapterEnabled()) {
             enableBleAdapter()
         }
