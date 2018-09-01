@@ -35,8 +35,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
 
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show()
+            sendRandomLED()
         }
 
         val toggle = ActionBarDrawerToggle(
@@ -48,6 +49,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         BleConnection = BLE(this)
         BleConnection.Init()
+    }
+
+    fun ClosedRange<Int>.random() = Random().nextInt((endInclusive + 1) - start) +  start
+
+    fun sendRandomLED() {
+        var r = (0..255).random().toString()
+        var g = (0..255).random().toString()
+        var b = (0..255).random().toString()
+
+        if (BleConnection.connectionActive)
+            BleConnection.sendData("-1,$r,$g,$b")
     }
 
     override fun onBackPressed() {

@@ -73,6 +73,15 @@ class BLE(private val context: Context) {
         }
     }
 
+    fun sendData(data:String) {
+        operationAttempt = launch(UI) {
+            mainDevice.connect()
+            mainChar.setValue(data)
+            mainDevice.writeCharacteristic(mainChar)
+        }
+        println("sending: $data")
+    }
+
     fun adapterEnabled() : Boolean {
         return adapter.isEnabled
     }
