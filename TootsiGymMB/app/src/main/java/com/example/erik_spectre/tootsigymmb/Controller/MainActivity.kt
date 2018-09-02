@@ -53,7 +53,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         BleConnection = BLE(this)
         BleConnection.Init()
 
+
     }
+
+
+    private var bluetoothGattServer: BluetoothGattServer? = null
 
     private fun startAdvertising() {
         val bleManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -63,7 +67,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         adapter.name = DEVICE_NAME
 
         val settings = AdvertiseSettings.Builder()
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
                 .setConnectable(true)
                 .build()
@@ -97,9 +101,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
+        bluetoothGattServer = bleManager.openGattServer(this, gattServerCallback)
+        bluetoothGattServer?.addService(createGATTService())
         advertiser.startAdvertising(settings, advData, advScanResponse, advCallback)
-        val server = bleManager.openGattServer(this, gattServerCallback)
-        server.addService(createGATTService())
         println("start advertising")
     }
 
@@ -107,16 +111,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val service = BluetoothGattService(UUID.fromString(MOONBOARD_DATA_SERVICE_UUID),
                 BluetoothGattService.SERVICE_TYPE_PRIMARY)
 
-        val chr = BluetoothGattCharacteristic(UUID.fromString(MOONBOARD_DATA_CHAR_UUID),
+        mainChr = BluetoothGattCharacteristic(UUID.fromString(MOONBOARD_DATA_CHAR_UUID),
                 BluetoothGattCharacteristic.PROPERTY_NOTIFY or
                         BluetoothGattCharacteristic.PROPERTY_WRITE or
                 BluetoothGattCharacteristic.PROPERTY_READ,
                 BluetoothGattCharacteristic.PERMISSION_READ or
                 BluetoothGattCharacteristic.PROPERTY_WRITE or
                 BluetoothGattCharacteristic.PROPERTY_NOTIFY)
-        service.addCharacteristic(chr)
+
+        val dscrpt = BluetoothGattDescriptor(UUID.fromString(MOONBOARD_DATA_DESCRIPTOR_UUID),
+                BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE)
+
+        mainChr.addDescriptor(dscrpt)
+
+        mainChr.value = "hello".toByteArray()
+
+        service.addCharacteristic(mainChr)
         return service
     }
+
+    lateinit var mainChr :BluetoothGattCharacteristic
+    lateinit var mainDev : BluetoothDevice
 
     fun stopAdvertising() {
         val adapter = BluetoothAdapter.getDefaultAdapter()
@@ -136,13 +151,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      * All read/write requests for characteristics and descriptors are handled here.
      */
 
-    private var bluetoothGattServer: BluetoothGattServer? = null
 
     private val gattServerCallback = object : BluetoothGattServerCallback() {
 
         override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 println("BluetoothDevice CONNECTED: $device")
+                mainDev = device
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 println("BluetoothDevice DISCONNECTED: $device")
                 //Remove device from any active subscriptions
@@ -152,11 +167,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         override fun onCharacteristicReadRequest(device: BluetoothDevice, requestId: Int, offset: Int,
                                                  characteristic: BluetoothGattCharacteristic) {
-            val now = System.currentTimeMillis()
             when (characteristic.uuid.toString()){
-                "345ue89sduh3784235" -> {
-                    println("Read Char")
-                    bluetoothGattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, byteArrayOf(1,2,3))
+                MOONBOARD_DATA_CHAR_UUID -> {
+                    println("MOONBOARD_DATA_CHAR_UUID READ")
+                    val resp = String(characteristic.value)
+                    println(resp)
+                    val chrValue = characteristic.value
+                    bluetoothGattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, chrValue)
                 }
                 else -> {
                     // Invalid characteristic
@@ -166,39 +183,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
-        override fun onDescriptorReadRequest(device: BluetoothDevice, requestId: Int, offset: Int,
-                                             descriptor: BluetoothGattDescriptor) {
-            if (descriptor.uuid.toString() == "something") {
-                println("Config descriptor read")
-                BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                //BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
-                bluetoothGattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, byteArrayOf(1,2,3))
-            } else {
-                println("Unknown descriptor read request")
-                bluetoothGattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_FAILURE, 0, null)
-            }
-        }
-
-        override fun onDescriptorWriteRequest(device: BluetoothDevice, requestId: Int,
-                                              descriptor: BluetoothGattDescriptor,
-                                              preparedWrite: Boolean, responseNeeded: Boolean,
-                                              offset: Int, value: ByteArray) {
-            if (descriptor.uuid.toString() == "something") {
-                if (Arrays.equals(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE, value)) {
-                    println("Subscribe device to notifications: $device")
-                } else if (Arrays.equals(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE, value)) {
-                    println("Unsubscribe device from notifications: $device")
-                }
-
-                if (responseNeeded) {
-                    bluetoothGattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, null)
-                }
-            } else {
-                println("Unknown descriptor write request")
-                if (responseNeeded) {
-                    bluetoothGattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_FAILURE, 0, null)
-                }
-            }
+        override fun onCharacteristicWriteRequest(device: BluetoothDevice?, requestId: Int,
+                                                  characteristic: BluetoothGattCharacteristic?, preparedWrite: Boolean, responseNeeded: Boolean, offset: Int, value: ByteArray?) {
+            super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value)
+            println("MOONBOARD_DATA_CHAR_UUID WRITE")
+            val res = if (value == null) "None" else String(value)
+            println(res)
+            characteristic?.value = value
+            bluetoothGattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, value)
         }
     }
 
@@ -247,7 +239,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             }
             R.id.nav_database -> {
-
+                mainChr.value = "test".toByteArray()
+                bluetoothGattServer?.notifyCharacteristicChanged(mainDev, mainChr, false)
             }
             R.id.nav_connection -> {
                 closeNav = false
