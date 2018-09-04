@@ -221,6 +221,19 @@ class BLE(private val context: Context) {
         }
     }
 
+    fun ClosedRange<Int>.random() = Random().nextInt((endInclusive + 1) - start) +  start
+
+
+    fun sendRandomLED() {
+        var r = (0..255).random().toString()
+        var g = (0..255).random().toString()
+        var b = (0..255).random().toString()
+
+        if (connectionActive)
+            sendData("-1,$r,$g,$b")
+    }
+
+
     fun sendData(data:String) {
         mainChar.value = data.toByteArray()
         bluetoothGattServer?.notifyCharacteristicChanged(mainDevice, mainChar, false)
