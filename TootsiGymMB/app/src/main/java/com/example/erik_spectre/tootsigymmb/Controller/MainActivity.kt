@@ -19,12 +19,6 @@ import com.example.erik_spectre.tootsigymmb.Model.BLE
 import kotlinx.android.synthetic.main.nav_header_main.*
 import java.util.*
 import kotlin.concurrent.schedule
-import android.bluetooth.le.AdvertiseSettings
-import android.bluetooth.le.AdvertiseCallback
-import android.bluetooth.le.AdvertiseData
-import android.content.Context
-import android.os.ParcelUuid
-import android.util.Log
 import com.example.erik_spectre.tootsigymmb.Utilities.*
 
 
@@ -54,144 +48,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         BleConnection.Init()
 
 
-    }
-
-
-    private var bluetoothGattServer: BluetoothGattServer? = null
-
-    private fun startAdvertising() {
-        val bleManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        val adapter = bleManager.adapter
-        val advertiser = adapter.bluetoothLeAdvertiser
-
-        adapter.name = DEVICE_NAME
-
-        val settings = AdvertiseSettings.Builder()
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
-                .setConnectable(true)
-                .build()
-
-        val advData = AdvertiseData.Builder()
-                .addServiceUuid(ParcelUuid(UUID.fromString(DEVICE_SERVICE_UUID)))
-                .build()
-
-        val advScanResponse = AdvertiseData.Builder()
-                .setIncludeDeviceName(true)
-                .build()
-
-        val advCallback = object : AdvertiseCallback() {
-
-            override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
-                super.onStartSuccess(settingsInEffect)
-                println("Bluetooth Advertise success.")
-
-            }
-
-            override fun onStartFailure(errorCode: Int) {
-                super.onStartFailure(errorCode)
-                when (errorCode) {
-                    ADVERTISE_FAILED_ALREADY_STARTED -> println("ADVERTISE_FAILED_ALREADY_STARTED")
-                    ADVERTISE_FAILED_DATA_TOO_LARGE -> println("ADVERTISE_FAILED_DATA_TOO_LARGE")
-                    ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> println("ADVERTISE_FAILED_FEATURE_UNSUPPORTED")
-                    ADVERTISE_FAILED_INTERNAL_ERROR -> println("ADVERTISE_FAILED_INTERNAL_ERROR")
-                    ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> println("ADVERTISE_FAILED_TOO_MANY_ADVERTISERS")
-                    else -> println("Advertise failed. Errorcode: $errorCode")
-                }
-            }
-        }
-
-        bluetoothGattServer = bleManager.openGattServer(this, gattServerCallback)
-        bluetoothGattServer?.addService(createGATTService())
-        advertiser.startAdvertising(settings, advData, advScanResponse, advCallback)
-        println("start advertising")
-    }
-
-    fun createGATTService(): BluetoothGattService {
-        val service = BluetoothGattService(UUID.fromString(MOONBOARD_DATA_SERVICE_UUID),
-                BluetoothGattService.SERVICE_TYPE_PRIMARY)
-
-        mainChr = BluetoothGattCharacteristic(UUID.fromString(MOONBOARD_DATA_CHAR_UUID),
-                BluetoothGattCharacteristic.PROPERTY_NOTIFY or
-                        BluetoothGattCharacteristic.PROPERTY_WRITE or
-                BluetoothGattCharacteristic.PROPERTY_READ,
-                BluetoothGattCharacteristic.PERMISSION_READ or
-                BluetoothGattCharacteristic.PROPERTY_WRITE or
-                BluetoothGattCharacteristic.PROPERTY_NOTIFY)
-
-        val dscrpt = BluetoothGattDescriptor(UUID.fromString(MOONBOARD_DATA_DESCRIPTOR_UUID),
-                BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE)
-
-        mainChr.addDescriptor(dscrpt)
-
-        mainChr.value = "hello".toByteArray()
-
-        service.addCharacteristic(mainChr)
-        return service
-    }
-
-    lateinit var mainChr :BluetoothGattCharacteristic
-    lateinit var mainDev : BluetoothDevice
-
-    fun stopAdvertising() {
-        val adapter = BluetoothAdapter.getDefaultAdapter()
-        val advertiser = adapter.bluetoothLeAdvertiser
-
-        val advCallback = object : AdvertiseCallback() {}
-        advertiser.stopAdvertising(advCallback)
-    }
-
-    fun startBleGATTServer() {
-        val bleManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        val bluetoothGattServer = bleManager.openGattServer(this, gattServerCallback)
-    }
-
-    /**
-     * Callback to handle incoming requests to the GATT server.
-     * All read/write requests for characteristics and descriptors are handled here.
-     */
-
-
-    private val gattServerCallback = object : BluetoothGattServerCallback() {
-
-        override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                println("BluetoothDevice CONNECTED: $device")
-                mainDev = device
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                println("BluetoothDevice DISCONNECTED: $device")
-                //Remove device from any active subscriptions
-                //registeredDevices.remove(device)
-            }
-        }
-
-        override fun onCharacteristicReadRequest(device: BluetoothDevice, requestId: Int, offset: Int,
-                                                 characteristic: BluetoothGattCharacteristic) {
-            when (characteristic.uuid.toString()){
-                MOONBOARD_DATA_CHAR_UUID -> {
-                    println("MOONBOARD_DATA_CHAR_UUID READ")
-                    val resp = String(characteristic.value)
-                    println(resp)
-                    val chrValue = characteristic.value
-                    bluetoothGattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, chrValue)
-                }
-                else -> {
-                    // Invalid characteristic
-                    println("Invalid Characteristic Read: ${characteristic.uuid}")
-                    bluetoothGattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_FAILURE, 0, null)
-                }
-            }
-        }
-
-        override fun onCharacteristicWriteRequest(device: BluetoothDevice?, requestId: Int,
-                                                  characteristic: BluetoothGattCharacteristic?, preparedWrite: Boolean, responseNeeded: Boolean, offset: Int, value: ByteArray?) {
-            super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value)
-            println("MOONBOARD_DATA_CHAR_UUID WRITE")
-            val res = if (value == null) "None" else String(value)
-            println(res)
-            characteristic?.value = value
-            bluetoothGattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, value)
-        }
     }
 
     fun ClosedRange<Int>.random() = Random().nextInt((endInclusive + 1) - start) +  start
@@ -239,8 +95,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             }
             R.id.nav_database -> {
-                mainChr.value = "test".toByteArray()
-                bluetoothGattServer?.notifyCharacteristicChanged(mainDev, mainChr, false)
+                BleConnection.sendData("test")
             }
             R.id.nav_connection -> {
                 closeNav = false
@@ -253,7 +108,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (!BleConnection.connectionActive) {
                     InitAdapter()
                 } else {
-                    BleConnection.disconnect()
+                    //BleConnection.disconnect()
                 }
             }
         }
@@ -291,8 +146,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 waitAdapterInit()
             }
         } else {
-            //BleConnection.startScan()
-            startAdvertising()
+            BleConnection.startAdvertising()
         }
     }
 
