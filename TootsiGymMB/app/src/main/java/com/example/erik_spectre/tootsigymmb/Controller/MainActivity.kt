@@ -1,6 +1,5 @@
 package com.example.erik_spectre.tootsigymmb.Controller
 
-import android.Manifest
 import android.bluetooth.*
 import android.os.Bundle
 import android.support.design.widget.NavigationView
@@ -13,8 +12,6 @@ import com.example.erik_spectre.tootsigymmb.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import android.content.Intent
-import android.os.Build
-import android.support.v4.content.PermissionChecker
 import com.example.erik_spectre.tootsigymmb.Model.BLE
 import kotlinx.android.synthetic.main.nav_header_main.*
 import java.util.*
@@ -24,18 +21,13 @@ import com.example.erik_spectre.tootsigymmb.Utilities.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    lateinit var BleConnection : BLE
+    private lateinit var bleConnection : BLE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                    .setAction("Action", null).show()
-            sendRandomLED()
-        }
 
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -44,8 +36,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.setNavigationItemSelectedListener(this)
 
-        BleConnection = BLE(this)
-        BleConnection.init()
+        bleConnection = BLE(this)
+        bleConnection.init()
 
 
     }
@@ -57,8 +49,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         var g = (0..255).random().toString()
         var b = (0..255).random().toString()
 
-        if (BleConnection.connectionActive)
-            BleConnection.sendData("-1,$r,$g,$b")
+        if (bleConnection.connectionActive)
+            bleConnection.sendData("-1,$r,$g,$b")
     }
 
     override fun onBackPressed() {
@@ -80,7 +72,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         when (item.itemId) {
-            R.id.action_settings -> return true
+            R.id.action_favorite -> {
+                sendRandomLED()
+                return true
+            }
             else -> return super.onOptionsItemSelected(item)
         }
     }
@@ -95,20 +90,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             }
             R.id.nav_database -> {
-                BleConnection.sendData("test")
+                bleConnection.sendData("test")
             }
             R.id.nav_connection -> {
                 closeNav = false
 
-                BleConnection.setConnectionBar(connectionBar)
-                BleConnection.setConnectionText(item)
-                BleConnection.setConnectionState("Connecting")
+                bleConnection.setConnectionBar(connectionBar)
+                bleConnection.setConnectionText(item)
+                bleConnection.setConnectionState("Connecting")
 
-                if (!BleConnection.connectionActive) {
+                if (!bleConnection.connectionActive) {
                     initAdapter()
                     println("conn")
                 } else {
-                    BleConnection.disconnect()
+                    bleConnection.disconnect()
                     println("disconn")
                 }
             }
@@ -120,7 +115,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun initAdapter() {
-        if (!BleConnection.adapterEnabled())
+        if (!bleConnection.adapterEnabled())
             enableBleAdapter()
 
         //Wait for adapter to actually turn on
@@ -130,7 +125,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun waitAdapterInit() {
         val timer = Timer("schedule", true)
 
-        val bleEnabled = BleConnection.adapterState() == ADAPTER_STATE_ON
+        val bleEnabled = bleConnection.adapterState() == ADAPTER_STATE_ON
 
         //Check bluetooth permissions
         if (!bleEnabled) {
@@ -139,7 +134,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 waitAdapterInit()
             }
         } else {
-            BleConnection.startAdvertising()
+            bleConnection.startAdvertising()
         }
     }
 

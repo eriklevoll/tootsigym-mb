@@ -2,8 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
+        android:id="@+id/action_favorite"
+        android:orderInCategory="300"
+        android:title="Send Data"
+        android:icon="@drawable/ic_menu_send"
+        app:showAsAction="ifRoom" />
 </menu>
