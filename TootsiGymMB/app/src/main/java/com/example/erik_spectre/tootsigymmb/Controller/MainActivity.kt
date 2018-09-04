@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_view.setNavigationItemSelectedListener(this)
 
         BleConnection = BLE(this)
-        BleConnection.Init()
+        BleConnection.init()
 
 
     }
@@ -104,11 +104,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 BleConnection.setConnectionText(item)
                 BleConnection.setConnectionState("Connecting")
 
-                //Check bluetooth adapter state and start scan when ready
                 if (!BleConnection.connectionActive) {
-                    InitAdapter()
+                    initAdapter()
+                    println("conn")
                 } else {
-                    //BleConnection.disconnect()
+                    BleConnection.disconnect()
+                    println("disconn")
                 }
             }
         }
@@ -118,10 +119,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    fun InitAdapter(checkCounter: Int = 0) {
-        if (!BleConnection.adapterEnabled()) {
+    private fun initAdapter() {
+        if (!BleConnection.adapterEnabled())
             enableBleAdapter()
-        }
+
         val perm = PermissionChecker.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)
         if (perm == PermissionChecker.PERMISSION_GRANTED) {
             println("Location permission granted")
@@ -131,8 +132,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         waitAdapterInit()
     }
 
-    fun waitAdapterInit()
-    {
+    private fun waitAdapterInit() {
         val timer = Timer("schedule", true)
 
         val bleEnabled = BleConnection.adapterState() == ADAPTER_STATE_ON
@@ -140,7 +140,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 checkSelfPermission(applicationContext,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PermissionChecker.PERMISSION_GRANTED
 
-        if (!bleEnabled || locationEnabled) {
+        //Check bluetooth permissions
+        if (!bleEnabled) {
             timer.schedule(1000) {
                 println("Waiting")
                 waitAdapterInit()
@@ -150,12 +151,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    fun enableBleAdapter() {
+    private fun enableBleAdapter() {
         val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(enableBtIntent, REQUEST_BLUETOOTH)
     }
 
-    fun requestEnableLocation() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    private fun requestEnableLocation() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
                 REQUEST_COARSE_LOCATION)
     } else {

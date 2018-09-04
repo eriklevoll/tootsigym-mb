@@ -8,29 +8,36 @@ import android.os.ParcelUuid
 import android.view.MenuItem
 import android.widget.GridLayout
 import com.example.erik_spectre.tootsigymmb.Utilities.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import java.util.*
+import kotlin.concurrent.schedule
 
 
 class BLE(private val context: Context) {
 
     var connectionActive = false
 
+    private var connectionState = "Disconnected"
+
     lateinit var connectionColorBar: GridLayout
     lateinit var connectionTextView: MenuItem
 
     lateinit var adapter : BluetoothAdapter
     lateinit var bleManager : BluetoothManager
+    lateinit var advertiser: BluetoothLeAdvertiser
 
+    lateinit var mainService : BluetoothGattService
     lateinit var mainChar : BluetoothGattCharacteristic
     lateinit var mainDevice : BluetoothDevice
 
     private var bluetoothGattServer: BluetoothGattServer? = null
 
 
-    fun Init() {
+    fun init() {
         bleManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         adapter = bleManager.adapter
-        adapter.name = DEVICE_NAME
+        mainService = createGATTService()
     }
 
     fun setConnectionBar(bar: GridLayout) {
@@ -42,36 +49,82 @@ class BLE(private val context: Context) {
     }
 
     fun setConnectionState(state: String) {
+        connectionState = state
+        val stateText: String
+        val fromColor: Int
+        val toColor: Int
+
         when (state) {
             "Disconnected" -> {
                 if (connectionActive)
-                    ColorSwitcher.changeBackground(connectionColorBar, Color.BLUE, Color.RED)
+                    fromColor = Color.BLUE
                 else
-                    ColorSwitcher.changeBackground(connectionColorBar, Color.YELLOW, Color.RED)
-                connectionTextView.title = "Connect"
+                    fromColor = Color.YELLOW
+                stateText = "Connect"
+                toColor = Color.RED
                 connectionActive = false
             }
             "Connecting" -> {
-                ColorSwitcher.changeBackground(connectionColorBar, Color.RED, Color.YELLOW)
-                connectionTextView.title = "Connecting"
+                stateText = "Connecting"
+                fromColor = Color.RED
+                toColor = Color.YELLOW
             }
             "Connected" -> {
-                ColorSwitcher.changeBackground(connectionColorBar, Color.YELLOW, Color.BLUE)
-                connectionTextView.title = "Disconnect"
+                stateText = "Disconnect"
+                fromColor = Color.YELLOW
+                toColor = Color.BLUE
                 connectionActive = true
             }
             "Disconnecting" -> {
-                ColorSwitcher.changeBackground(connectionColorBar, Color.BLUE, Color.YELLOW)
-                connectionTextView.title = "Disconnecting"
+                stateText = "Disconnecting"
+                fromColor = Color.BLUE
+                toColor = Color.YELLOW
+            }
+            else -> {
+                stateText = "Disconnected"
+                fromColor = Color.RED
+                toColor = Color.RED
+            }
+        }
+        launch(UI) {
+            ColorSwitcher.changeBackground(connectionColorBar, fromColor, toColor)
+            connectionTextView.title = stateText
+        }
+    }
+
+    fun disconnect() {
+        bluetoothGattServer?.cancelConnection(mainDevice)
+        bluetoothGattServer?.close()
+        setConnectionState("Disconnected")
+    }
+
+    private val advCallback = object : AdvertiseCallback() {
+
+        override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
+            super.onStartSuccess(settingsInEffect)
+            println("Bluetooth Advertise success.")
+
+        }
+
+        override fun onStartFailure(errorCode: Int) {
+            super.onStartFailure(errorCode)
+            when (errorCode) {
+                ADVERTISE_FAILED_ALREADY_STARTED -> println("ADVERTISE_FAILED_ALREADY_STARTED")
+                ADVERTISE_FAILED_DATA_TOO_LARGE -> println("ADVERTISE_FAILED_DATA_TOO_LARGE")
+                ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> println("ADVERTISE_FAILED_FEATURE_UNSUPPORTED")
+                ADVERTISE_FAILED_INTERNAL_ERROR -> println("ADVERTISE_FAILED_INTERNAL_ERROR")
+                ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> println("ADVERTISE_FAILED_TOO_MANY_ADVERTISERS")
+                else -> println("Advertise failed. Errorcode: $errorCode")
             }
         }
     }
 
     fun startAdvertising() {
-        val advertiser = adapter.bluetoothLeAdvertiser
+        adapter.name = DEVICE_NAME
+        advertiser = adapter.bluetoothLeAdvertiser
 
         val settings = AdvertiseSettings.Builder()
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
+                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
                 .setConnectable(true)
                 .build()
@@ -84,42 +137,23 @@ class BLE(private val context: Context) {
                 .setIncludeDeviceName(true)
                 .build()
 
-        val advCallback = object : AdvertiseCallback() {
-
-            override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
-                super.onStartSuccess(settingsInEffect)
-                println("Bluetooth Advertise success.")
-
-            }
-
-            override fun onStartFailure(errorCode: Int) {
-                super.onStartFailure(errorCode)
-                when (errorCode) {
-                    ADVERTISE_FAILED_ALREADY_STARTED -> println("ADVERTISE_FAILED_ALREADY_STARTED")
-                    ADVERTISE_FAILED_DATA_TOO_LARGE -> println("ADVERTISE_FAILED_DATA_TOO_LARGE")
-                    ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> println("ADVERTISE_FAILED_FEATURE_UNSUPPORTED")
-                    ADVERTISE_FAILED_INTERNAL_ERROR -> println("ADVERTISE_FAILED_INTERNAL_ERROR")
-                    ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> println("ADVERTISE_FAILED_TOO_MANY_ADVERTISERS")
-                    else -> println("Advertise failed. Errorcode: $errorCode")
-                }
-            }
-        }
-
         bluetoothGattServer = bleManager.openGattServer(context, gattServerCallback)
-        bluetoothGattServer?.addService(createGATTService())
+        if (bluetoothGattServer?.services?.contains(mainService)!!) {
+            println("on juba olemas")
+        } else {
+            println("ei ole veel olemas")
+        }
+        bluetoothGattServer?.addService(mainService)
         advertiser.startAdvertising(settings, advData, advScanResponse, advCallback)
         println("start advertising")
     }
 
     fun stopAdvertising() {
-        val adapter = BluetoothAdapter.getDefaultAdapter()
-        val advertiser = adapter.bluetoothLeAdvertiser
-
-        val advCallback = object : AdvertiseCallback() {}
         advertiser.stopAdvertising(advCallback)
+        println("Stopped Advertising")
     }
 
-    fun createGATTService(): BluetoothGattService {
+    private fun createGATTService(): BluetoothGattService {
         val service = BluetoothGattService(UUID.fromString(MOONBOARD_DATA_SERVICE_UUID),
                 BluetoothGattService.SERVICE_TYPE_PRIMARY)
 
@@ -148,10 +182,13 @@ class BLE(private val context: Context) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 println("BluetoothDevice CONNECTED: $device")
                 mainDevice = device
+                setConnectionState("Connected")
+                stopAdvertising()
+
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 println("BluetoothDevice DISCONNECTED: $device")
-                //Remove device from any active subscriptions
-                //registeredDevices.remove(device)
+                setConnectionState("Disconnected")
+                disconnect()
             }
         }
 
