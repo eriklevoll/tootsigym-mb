@@ -116,7 +116,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 waitAdapterInit()
             }
         } else {
-            //bleConnection.connectionActive = true
+            if (!bleConnection.adapterParametersInitialized)
+                bleConnection.initializeAdapterParameters()
             bleConnection.startAdvertising()
         }
     }

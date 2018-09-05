@@ -30,6 +30,8 @@ class BLE(private val context: Context) {
     lateinit var mainChar : BluetoothGattCharacteristic
     lateinit var mainDevice : BluetoothDevice
 
+    var adapterParametersInitialized = false
+
     private var bluetoothGattServer: BluetoothGattServer? = null
     lateinit var deviceID: String
 
@@ -41,6 +43,15 @@ class BLE(private val context: Context) {
         adapter = bleManager.adapter
         mainService = createGATTService()
 
+        if (adapter.isEnabled)
+            initializeAdapterParameters()
+//        adapter.name = "${DEVICE_NAME}:::${deviceID}"
+//        advertiser = adapter.bluetoothLeAdvertiser
+//        bluetoothGattServer = bleManager.openGattServer(context, gattServerCallback)
+//        bluetoothGattServer?.addService(mainService)
+    }
+
+    fun initializeAdapterParameters() {
         adapter.name = "${DEVICE_NAME}:::${deviceID}"
         advertiser = adapter.bluetoothLeAdvertiser
         bluetoothGattServer = bleManager.openGattServer(context, gattServerCallback)
@@ -270,6 +281,7 @@ class BLE(private val context: Context) {
     }
 
     fun adapterEnabled() : Boolean {
+        adapterParametersInitialized =  adapter.isEnabled
         return adapter.isEnabled
     }
 
