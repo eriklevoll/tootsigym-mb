@@ -45,10 +45,6 @@ class BLE(private val context: Context) {
 
         if (adapter.isEnabled)
             initializeAdapterParameters()
-//        adapter.name = "${DEVICE_NAME}:::${deviceID}"
-//        advertiser = adapter.bluetoothLeAdvertiser
-//        bluetoothGattServer = bleManager.openGattServer(context, gattServerCallback)
-//        bluetoothGattServer?.addService(mainService)
     }
 
     fun initializeAdapterParameters() {
@@ -109,16 +105,18 @@ class BLE(private val context: Context) {
             }
         }
         launch(UI) {
-            ColorSwitcher.changeBackground(connectionColorBar, fromColor, toColor)
-            connectionTextView.title = stateText
+            try {
+                ColorSwitcher.changeBackground(connectionColorBar, fromColor, toColor)
+                connectionTextView.title = stateText
+            }
+            catch (e: Exception) {
+                println("Failed to set colorbar: ${e.message}")
+            }
         }
     }
 
     fun disconnect() {
         sendData("disconnect:::${deviceID}")
-        //bluetoothGattServer?.cancelConnection(mainDevice)
-        //bluetoothGattServer?.close()
-        //setConnectionState("Disconnected")
     }
 
     private val advCallback = object : AdvertiseCallback() {
@@ -141,46 +139,21 @@ class BLE(private val context: Context) {
             }
         }
     }
-//    private val advSettings = AdvertiseSettings.Builder()
-//            .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-//            .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
-//            .setConnectable(true)
-//            .build()
-//
-//    private val advData = AdvertiseData.Builder()
-//            .addServiceUuid(ParcelUuid(UUID.fromString(DEVICE_SERVICE_UUID)))
-//            .build()
-//
-//    private val advScanResponse = AdvertiseData.Builder()
-//            .setIncludeDeviceName(true)
-//            .build()
+    private val settings = AdvertiseSettings.Builder()
+            .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+            .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+            .setConnectable(true)
+            .build()
+
+    private val advData = AdvertiseData.Builder()
+            .addServiceUuid(ParcelUuid(UUID.fromString(DEVICE_SERVICE_UUID)))
+            .build()
+
+    private val advScanResponse = AdvertiseData.Builder()
+            .setIncludeDeviceName(true)
+            .build()
 
     fun startAdvertising() {
-//        adapter.name = "${DEVICE_NAME}:::${deviceID}"
-//        //adapter.name = "DATA:::$data"
-//        advertiser = adapter.bluetoothLeAdvertiser
-
-        val settings = AdvertiseSettings.Builder()
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
-                .setConnectable(true)
-                .build()
-
-        val advData = AdvertiseData.Builder()
-                .addServiceUuid(ParcelUuid(UUID.fromString(DEVICE_SERVICE_UUID)))
-                .build()
-
-        val advScanResponse = AdvertiseData.Builder()
-                .setIncludeDeviceName(true)
-                .build()
-
-//        bluetoothGattServer = bleManager.openGattServer(context, gattServerCallback)
-//        if (bluetoothGattServer?.services?.contains(mainService)!!) {
-//            println("on juba olemas")
-//        } else {
-//            println("ei ole veel olemas")
-//        }
-//        bluetoothGattServer?.addService(mainService)
         mainChar.value = deviceID.toByteArray()
         advertiser.startAdvertising(settings, advData, advScanResponse, advCallback)
         println("start advertising")
@@ -274,7 +247,6 @@ class BLE(private val context: Context) {
         try {
             mainChar.value = data.toByteArray()
             bluetoothGattServer?.notifyCharacteristicChanged(mainDevice, mainChar, false)
-            println("Writing")
         } catch (e: Exception) {
             println("Failed to send: ${e.message}")
         }
