@@ -8,7 +8,6 @@ Intended for use with a custom LED controller running a pycom module
 
 ## TODO
 
-* Build bluetooth connection
 * Build layouts for
     * Nav drawer
     * Individual LED control
