@@ -1,6 +1,6 @@
 package com.example.erik_spectre.tootsigymmb.Utilities
 
-const val DEVICE_NAME = "MOONBOARD_APP"
+const val DEVICE_NAME = "MB_APP"
 
 const val MOONBOARD_SERVICE_UUID        = "12EFFA29-0B6E-40B3-9181-BE9509B23200"
 

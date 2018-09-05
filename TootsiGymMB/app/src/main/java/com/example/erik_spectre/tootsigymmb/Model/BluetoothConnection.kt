@@ -11,14 +11,13 @@ import com.example.erik_spectre.tootsigymmb.Utilities.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import java.util.*
-import kotlin.concurrent.schedule
 
 
 class BLE(private val context: Context) {
 
     var connectionActive = false
 
-    private var connectionState = "Disconnected"
+    private var connectingState = "Disconnected"
 
     lateinit var connectionColorBar: GridLayout
     lateinit var connectionTextView: MenuItem
@@ -32,12 +31,20 @@ class BLE(private val context: Context) {
     lateinit var mainDevice : BluetoothDevice
 
     private var bluetoothGattServer: BluetoothGattServer? = null
+    lateinit var deviceID: String
 
 
     fun init() {
+        connectingState = ""
+        deviceID = RandomGenerator.getRandomID(upperCase = true)
         bleManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         adapter = bleManager.adapter
         mainService = createGATTService()
+
+        adapter.name = "${DEVICE_NAME}:::${deviceID}"
+        advertiser = adapter.bluetoothLeAdvertiser
+        bluetoothGattServer = bleManager.openGattServer(context, gattServerCallback)
+        bluetoothGattServer?.addService(mainService)
     }
 
     fun setConnectionBar(bar: GridLayout) {
@@ -48,8 +55,12 @@ class BLE(private val context: Context) {
         connectionTextView = element
     }
 
+    fun getConnectingState(): String {
+        return connectingState
+    }
+
     fun setConnectionState(state: String) {
-        connectionState = state
+        connectingState = state
         val stateText: String
         val fromColor: Int
         val toColor: Int
@@ -93,9 +104,10 @@ class BLE(private val context: Context) {
     }
 
     fun disconnect() {
-        bluetoothGattServer?.cancelConnection(mainDevice)
-        bluetoothGattServer?.close()
-        setConnectionState("Disconnected")
+        sendData("disconnect:::${deviceID}")
+        //bluetoothGattServer?.cancelConnection(mainDevice)
+        //bluetoothGattServer?.close()
+        //setConnectionState("Disconnected")
     }
 
     private val advCallback = object : AdvertiseCallback() {
@@ -118,10 +130,24 @@ class BLE(private val context: Context) {
             }
         }
     }
+//    private val advSettings = AdvertiseSettings.Builder()
+//            .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+//            .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
+//            .setConnectable(true)
+//            .build()
+//
+//    private val advData = AdvertiseData.Builder()
+//            .addServiceUuid(ParcelUuid(UUID.fromString(DEVICE_SERVICE_UUID)))
+//            .build()
+//
+//    private val advScanResponse = AdvertiseData.Builder()
+//            .setIncludeDeviceName(true)
+//            .build()
 
     fun startAdvertising() {
-        adapter.name = DEVICE_NAME
-        advertiser = adapter.bluetoothLeAdvertiser
+//        adapter.name = "${DEVICE_NAME}:::${deviceID}"
+//        //adapter.name = "DATA:::$data"
+//        advertiser = adapter.bluetoothLeAdvertiser
 
         val settings = AdvertiseSettings.Builder()
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
@@ -137,13 +163,14 @@ class BLE(private val context: Context) {
                 .setIncludeDeviceName(true)
                 .build()
 
-        bluetoothGattServer = bleManager.openGattServer(context, gattServerCallback)
-        if (bluetoothGattServer?.services?.contains(mainService)!!) {
-            println("on juba olemas")
-        } else {
-            println("ei ole veel olemas")
-        }
-        bluetoothGattServer?.addService(mainService)
+//        bluetoothGattServer = bleManager.openGattServer(context, gattServerCallback)
+//        if (bluetoothGattServer?.services?.contains(mainService)!!) {
+//            println("on juba olemas")
+//        } else {
+//            println("ei ole veel olemas")
+//        }
+//        bluetoothGattServer?.addService(mainService)
+        mainChar.value = deviceID.toByteArray()
         advertiser.startAdvertising(settings, advData, advScanResponse, advCallback)
         println("start advertising")
     }
@@ -170,7 +197,7 @@ class BLE(private val context: Context) {
 
         mainChar.addDescriptor(dscrpt)
 
-        mainChar.value = "hello".toByteArray()
+        mainChar.value = deviceID.toByteArray()
 
         service.addCharacteristic(mainChar)
         return service
@@ -182,13 +209,12 @@ class BLE(private val context: Context) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 println("BluetoothDevice CONNECTED: $device")
                 mainDevice = device
-                setConnectionState("Connected")
                 stopAdvertising()
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 println("BluetoothDevice DISCONNECTED: $device")
                 setConnectionState("Disconnected")
-                disconnect()
+                //disconnect()
             }
         }
 
@@ -216,27 +242,31 @@ class BLE(private val context: Context) {
             println("MOONBOARD_DATA_CHAR_UUID WRITE")
             val res = if (value == null) "None" else String(value)
             println(res)
+            if (res == "CONN_OK") {
+                setConnectionState("Connected")
+            }
             characteristic?.value = value
             bluetoothGattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, value)
         }
     }
 
-    fun ClosedRange<Int>.random() = Random().nextInt((endInclusive + 1) - start) +  start
-
-
     fun sendRandomLED() {
-        var r = (0..255).random().toString()
-        var g = (0..255).random().toString()
-        var b = (0..255).random().toString()
+        val r = RandomGenerator.getRandomInt(0, 255).toString()
+        val g = RandomGenerator.getRandomInt(0, 255).toString()
+        val b = RandomGenerator.getRandomInt(0, 255).toString()
 
         if (connectionActive)
             sendData("-1,$r,$g,$b")
     }
 
-
     fun sendData(data:String) {
-        mainChar.value = data.toByteArray()
-        bluetoothGattServer?.notifyCharacteristicChanged(mainDevice, mainChar, false)
+        try {
+            mainChar.value = data.toByteArray()
+            bluetoothGattServer?.notifyCharacteristicChanged(mainDevice, mainChar, false)
+            println("Writing")
+        } catch (e: Exception) {
+            println("Failed to send: ${e.message}")
+        }
     }
 
     fun adapterEnabled() : Boolean {

@@ -77,17 +77,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_connection -> {
                 closeNav = false
 
+                if (bleConnection.getConnectingState() == "Connecting") return true
+
                 bleConnection.setConnectionBar(connectionBar)
                 bleConnection.setConnectionText(item)
                 bleConnection.setConnectionState("Connecting")
 
-                if (!bleConnection.connectionActive) {
+
+                if (!bleConnection.connectionActive)
                     initAdapter()
-                    println("conn")
-                } else {
+                else
                     bleConnection.disconnect()
-                    println("disconn")
-                }
             }
         }
 
@@ -116,6 +116,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 waitAdapterInit()
             }
         } else {
+            //bleConnection.connectionActive = true
             bleConnection.startAdvertising()
         }
     }
