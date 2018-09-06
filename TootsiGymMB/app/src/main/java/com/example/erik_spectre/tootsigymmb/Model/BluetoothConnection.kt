@@ -118,7 +118,7 @@ class BLE(private val context: Context) {
     }
 
     fun disconnect() {
-        sendData("disconnect:::${deviceID}")
+        sendData("disconnect:::$deviceID")
     }
 
     private val advCallback = object : AdvertiseCallback() {
@@ -163,11 +163,21 @@ class BLE(private val context: Context) {
 
         advertisementTimer.schedule(timeout) {
             if (advertising)
-                stopAdvertising()
+                stopAdvertising(delay = 0)
         }
     }
 
-    fun stopAdvertising() {
+    fun stopAdvertising(delay: Long) {
+
+        if (!advertising)
+            return
+
+        if (delay > 0) {
+            advertisementTimer.schedule(delay) {
+                stopAdvertising(0)
+            }
+        }
+
         advertiser.stopAdvertising(advCallback)
         advertising = false
         println("Stopped Advertising")
@@ -236,12 +246,13 @@ class BLE(private val context: Context) {
             println("MOONBOARD_DATA_CHAR_UUID WRITE")
             val res = if (value == null) "None" else String(value)
             println(res)
-            if (res == "CONN_OK") {
-                setConnectionState("Connected")
-                stopAdvertising()
-            }
             characteristic?.value = value
             bluetoothGattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, value)
+
+            if (res == "CONN_OK") {
+                setConnectionState("Connected")
+                //stopAdvertising(delay = 2000)
+            }
         }
     }
 

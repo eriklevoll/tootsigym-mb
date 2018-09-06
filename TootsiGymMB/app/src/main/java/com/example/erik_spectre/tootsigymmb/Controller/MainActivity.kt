@@ -118,7 +118,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else {
             if (!bleConnection.adapterParametersInitialized)
                 bleConnection.initializeAdapterParameters()
-            bleConnection.startAdvertising(timeout = 5000)
+            bleConnection.startAdvertising(timeout = 7000)
         }
     }
 
