@@ -11,30 +11,32 @@ import com.example.erik_spectre.tootsigymmb.Utilities.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import java.util.*
+import kotlin.concurrent.schedule
 
 
 class BLE(private val context: Context) {
 
     var connectionActive = false
-
-    private var connectingState = "Disconnected"
+    var adapterParametersInitialized = false
 
     lateinit var connectionColorBar: GridLayout
-    lateinit var connectionTextView: MenuItem
 
+    lateinit var connectionTextView: MenuItem
     lateinit var adapter : BluetoothAdapter
     lateinit var bleManager : BluetoothManager
-    lateinit var advertiser: BluetoothLeAdvertiser
 
+    lateinit var advertiser: BluetoothLeAdvertiser
     lateinit var mainService : BluetoothGattService
     lateinit var mainChar : BluetoothGattCharacteristic
     lateinit var mainDevice : BluetoothDevice
 
-    var adapterParametersInitialized = false
-
-    private var bluetoothGattServer: BluetoothGattServer? = null
     lateinit var deviceID: String
 
+    private var bluetoothGattServer: BluetoothGattServer? = null
+    private var connectingState = "Disconnected"
+    private var advertising = false
+
+    private val advertisementTimer = Timer("advertisement", true)
 
     fun init() {
         connectingState = ""
@@ -153,15 +155,25 @@ class BLE(private val context: Context) {
             .setIncludeDeviceName(true)
             .build()
 
-    fun startAdvertising() {
+    fun startAdvertising(timeout: Long) {
         mainChar.value = deviceID.toByteArray()
         advertiser.startAdvertising(settings, advData, advScanResponse, advCallback)
+        advertising = true
         println("start advertising")
+
+        advertisementTimer.schedule(timeout) {
+            if (advertising)
+                stopAdvertising()
+        }
     }
 
     fun stopAdvertising() {
         advertiser.stopAdvertising(advCallback)
+        advertising = false
         println("Stopped Advertising")
+
+        if (!connectionActive)
+            setConnectionState("Disconnected")
     }
 
     private fun createGATTService(): BluetoothGattService {
@@ -193,12 +205,10 @@ class BLE(private val context: Context) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 println("BluetoothDevice CONNECTED: $device")
                 mainDevice = device
-                stopAdvertising()
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 println("BluetoothDevice DISCONNECTED: $device")
                 setConnectionState("Disconnected")
-                //disconnect()
             }
         }
 
@@ -228,6 +238,7 @@ class BLE(private val context: Context) {
             println(res)
             if (res == "CONN_OK") {
                 setConnectionState("Connected")
+                stopAdvertising()
             }
             characteristic?.value = value
             bluetoothGattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, value)
