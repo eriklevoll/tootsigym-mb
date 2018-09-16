@@ -12,6 +12,9 @@ import com.example.erik_spectre.tootsigymmb.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import android.content.Intent
+import android.support.v4.view.GestureDetectorCompat
+import android.view.GestureDetector
+import android.view.MotionEvent
 import com.example.erik_spectre.tootsigymmb.Model.BLE
 import kotlinx.android.synthetic.main.nav_header_main.*
 import java.util.*
@@ -19,7 +22,48 @@ import kotlin.concurrent.schedule
 import com.example.erik_spectre.tootsigymmb.Utilities.*
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener,  GestureDetector.OnDoubleTapListener, NavigationView.OnNavigationItemSelectedListener  {
+
+    override fun onDoubleTap(p0: MotionEvent?): Boolean {
+        return true
+    }
+
+    override fun onDoubleTapEvent(p0: MotionEvent?): Boolean {
+        return true
+    }
+
+    override fun onSingleTapConfirmed(p0: MotionEvent?): Boolean {
+        return true
+    }
+
+    override fun onShowPress(p0: MotionEvent?) {
+    }
+
+    override fun onSingleTapUp(p0: MotionEvent?): Boolean {
+        return true
+    }
+
+    override fun onDown(p0: MotionEvent?): Boolean {
+        return true
+    }
+
+    override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean {
+        return true
+    }
+
+    override fun onScroll(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean {
+        return true
+    }
+
+    override fun onLongPress(p0: MotionEvent?) {
+    }
+
+    var gDetector: GestureDetectorCompat? = null
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        this.gDetector?.onTouchEvent(event)
+        return super.onTouchEvent(event)
+    }
 
     private lateinit var bleConnection : BLE
 
@@ -27,6 +71,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        this.gDetector = GestureDetectorCompat(this, this)
+        gDetector?.setOnDoubleTapListener(this)
 
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
