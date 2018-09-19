@@ -17,4 +17,11 @@ object RandomGenerator {
         else
             snippet
     }
+
+    fun getRandomLED() : String {
+        val r = getRandomInt(0, 255)
+        val g = getRandomInt(0, 255)
+        val b = getRandomInt(0, 255)
+        return "$r,$g,$b"
+    }
 }

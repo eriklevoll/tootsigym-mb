@@ -66,7 +66,6 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener,  Ge
         return super.onTouchEvent(event)
     }
 
-    private lateinit var bleConnection : BLE
     private lateinit var mqtt: MQTT
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,9 +85,6 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener,  Ge
 
         mqtt = MQTT(this, "m20.cloudmqtt.com", "11957", "ayogkqnq", "_e4HiuI73ywB")
         mqtt.init()
-
-//        bleConnection = BLE(this)
-//        bleConnection.init()
     }
 
     override fun onBackPressed() {
@@ -107,8 +103,8 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener,  Ge
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_favorite -> {
-                mqtt.sendData("40")
-//                bleConnection.sendRandomLED()
+                val data = "-1,${RandomGenerator.getRandomLED()}"
+                mqtt.sendData(data)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -125,58 +121,12 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener,  Ge
 
             }
             R.id.nav_database -> {
-                bleConnection.sendData("test")
-            }
-            R.id.nav_connection -> {
-                closeNav = false
-//
-//                if (bleConnection.getConnectingState() == "Connecting") return true
-//
-//                bleConnection.setConnectionBar(connectionBar)
-//                bleConnection.setConnectionText(item)
-//                bleConnection.setConnectionState("Connecting")
-//
-//
-//                if (!bleConnection.connectionActive)
-//                    initAdapter()
-//                else
-//                    bleConnection.disconnect()
+
             }
         }
 
         if (closeNav)
             drawer_layout.closeDrawer(GravityCompat.START)
         return true
-    }
-
-    private fun initAdapter() {
-        if (!bleConnection.adapterEnabled())
-            enableBleAdapter()
-
-        //Wait for adapter to actually turn on
-        waitAdapterInit()
-    }
-
-    private fun waitAdapterInit() {
-        val timer = Timer("schedule", true)
-
-        val bleEnabled = bleConnection.adapterState() == ADAPTER_STATE_ON
-
-        //Check bluetooth permissions
-        if (!bleEnabled) {
-            timer.schedule(1000) {
-                println("Waiting")
-                waitAdapterInit()
-            }
-        } else {
-            if (!bleConnection.adapterParametersInitialized)
-                bleConnection.initializeAdapterParameters()
-            bleConnection.startAdvertising(timeout = 7000)
-        }
-    }
-
-    private fun enableBleAdapter() {
-        val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-        startActivityForResult(enableBtIntent, REQUEST_BLUETOOTH)
     }
 }
