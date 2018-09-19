@@ -16,6 +16,7 @@ import android.support.v4.view.GestureDetectorCompat
 import android.view.GestureDetector
 import android.view.MotionEvent
 import com.example.erik_spectre.tootsigymmb.Model.BLE
+import com.example.erik_spectre.tootsigymmb.Model.MQTT
 import kotlinx.android.synthetic.main.nav_header_main.*
 import java.util.*
 import kotlin.concurrent.schedule
@@ -66,6 +67,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener,  Ge
     }
 
     private lateinit var bleConnection : BLE
+    private lateinit var mqtt: MQTT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,8 +84,11 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener,  Ge
 
         nav_view.setNavigationItemSelectedListener(this)
 
-        bleConnection = BLE(this)
-        bleConnection.init()
+        mqtt = MQTT(this, "m20.cloudmqtt.com", "11957", "ayogkqnq", "_e4HiuI73ywB")
+        mqtt.init()
+
+//        bleConnection = BLE(this)
+//        bleConnection.init()
     }
 
     override fun onBackPressed() {
@@ -102,7 +107,8 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener,  Ge
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_favorite -> {
-                bleConnection.sendRandomLED()
+                mqtt.sendData("40")
+//                bleConnection.sendRandomLED()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -123,18 +129,18 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener,  Ge
             }
             R.id.nav_connection -> {
                 closeNav = false
-
-                if (bleConnection.getConnectingState() == "Connecting") return true
-
-                bleConnection.setConnectionBar(connectionBar)
-                bleConnection.setConnectionText(item)
-                bleConnection.setConnectionState("Connecting")
-
-
-                if (!bleConnection.connectionActive)
-                    initAdapter()
-                else
-                    bleConnection.disconnect()
+//
+//                if (bleConnection.getConnectingState() == "Connecting") return true
+//
+//                bleConnection.setConnectionBar(connectionBar)
+//                bleConnection.setConnectionText(item)
+//                bleConnection.setConnectionState("Connecting")
+//
+//
+//                if (!bleConnection.connectionActive)
+//                    initAdapter()
+//                else
+//                    bleConnection.disconnect()
             }
         }
 
