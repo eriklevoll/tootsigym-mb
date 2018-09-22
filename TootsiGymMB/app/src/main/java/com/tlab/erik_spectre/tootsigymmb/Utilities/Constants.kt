@@ -1,4 +1,4 @@
-package com.example.erik_spectre.tootsigymmb.Utilities
+package com.tlab.erik_spectre.tootsigymmb.Utilities
 
 const val DEVICE_NAME = "MB_APP"
 

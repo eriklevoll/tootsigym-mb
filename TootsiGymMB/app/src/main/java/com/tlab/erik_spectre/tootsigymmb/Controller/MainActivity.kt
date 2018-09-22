@@ -1,4 +1,4 @@
-package com.example.erik_spectre.tootsigymmb.Controller
+package com.tlab.erik_spectre.tootsigymmb.Controller
 
 import android.bluetooth.*
 import android.os.Bundle
@@ -15,12 +15,13 @@ import android.content.Intent
 import android.support.v4.view.GestureDetectorCompat
 import android.view.GestureDetector
 import android.view.MotionEvent
-import com.example.erik_spectre.tootsigymmb.Model.BLE
-import com.example.erik_spectre.tootsigymmb.Model.MQTT
+import com.tlab.erik_spectre.tootsigymmb.Model.BLE
+import com.tlab.erik_spectre.tootsigymmb.Model.MQTT
 import kotlinx.android.synthetic.main.nav_header_main.*
 import java.util.*
 import kotlin.concurrent.schedule
-import com.example.erik_spectre.tootsigymmb.Utilities.*
+import com.tlab.erik_spectre.tootsigymmb.Utilities.*
+import com.tlab.erik_spectre.tootsigymmb.Utilities.RandomGenerator
 
 
 class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener,  GestureDetector.OnDoubleTapListener, NavigationView.OnNavigationItemSelectedListener  {

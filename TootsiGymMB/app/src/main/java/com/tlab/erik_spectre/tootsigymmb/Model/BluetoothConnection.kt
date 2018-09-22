@@ -1,4 +1,4 @@
-package com.example.erik_spectre.tootsigymmb.Model
+package com.tlab.erik_spectre.tootsigymmb.Model
 
 import android.bluetooth.*
 import android.bluetooth.le.*
@@ -7,7 +7,8 @@ import android.graphics.Color
 import android.os.ParcelUuid
 import android.view.MenuItem
 import android.widget.GridLayout
-import com.example.erik_spectre.tootsigymmb.Utilities.*
+import com.tlab.erik_spectre.tootsigymmb.Utilities.*
+import com.tlab.erik_spectre.tootsigymmb.Utilities.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import java.util.*
@@ -50,7 +51,7 @@ class BLE(private val context: Context) {
     }
 
     fun initializeAdapterParameters() {
-        adapter.name = "${DEVICE_NAME}:::${deviceID}"
+        adapter.name = "$DEVICE_NAME:::${deviceID}"
         advertiser = adapter.bluetoothLeAdvertiser
         bluetoothGattServer = bleManager.openGattServer(context, gattServerCallback)
         bluetoothGattServer?.addService(mainService)

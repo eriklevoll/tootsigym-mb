@@ -1,4 +1,4 @@
-package com.example.erik_spectre.tootsigymmb.Model
+package com.tlab.erik_spectre.tootsigymmb.Model
 
 import android.content.Context
 import org.eclipse.paho.android.service.MqttAndroidClient
