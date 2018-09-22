@@ -1,9 +1,8 @@
-# Android application for Moonboard LED control over bluetooth
+# Android application for Moonboard LED control
 
 Intended for use with a custom LED controller running a pycom module
 
-## Bluetooth LE communication guide
-
+## Works over MQTT communication
 
 
 ## TODO
