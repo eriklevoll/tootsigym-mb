@@ -22,7 +22,7 @@ import kotlinx.android.synthetic.main.content_main.*
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener  {
     private lateinit var mqtt: MQTT
 
-    private val myListener =  object : GestureDetector.SimpleOnGestureListener() {
+    private val GestureListener =  object : GestureDetector.SimpleOnGestureListener() {
 
         val contentCoordinates = IntArray(2)
         override fun onDown(e: MotionEvent): Boolean {
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         GestureParser.setScreenDimensions(displayMetrics.heightPixels, displayMetrics.widthPixels)
 
-        gestureDetector = GestureDetector(this, myListener)
+        gestureDetector = GestureDetector(this, GestureListener)
         drawer_layout.setOnTouchListener { v, event ->
             gestureDetector.onTouchEvent(event)
         }
