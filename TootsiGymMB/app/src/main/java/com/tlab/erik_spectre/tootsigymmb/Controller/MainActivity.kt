@@ -1,81 +1,55 @@
 package com.tlab.erik_spectre.tootsigymmb.Controller
 
-import android.bluetooth.*
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.util.DisplayMetrics
+import android.view.GestureDetector
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import com.example.erik_spectre.tootsigymmb.R
+import com.tlab.erik_spectre.tootsigymmb.Model.MQTT
+import com.tlab.erik_spectre.tootsigymmb.Utilities.GestureParser
+import com.tlab.erik_spectre.tootsigymmb.Utilities.RandomGenerator
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-import android.content.Intent
-import android.support.v4.view.GestureDetectorCompat
-import android.view.GestureDetector
-import android.view.MotionEvent
-import com.tlab.erik_spectre.tootsigymmb.Model.BLE
-import com.tlab.erik_spectre.tootsigymmb.Model.MQTT
-import kotlinx.android.synthetic.main.nav_header_main.*
-import java.util.*
-import kotlin.concurrent.schedule
-import com.tlab.erik_spectre.tootsigymmb.Utilities.*
-import com.tlab.erik_spectre.tootsigymmb.Utilities.RandomGenerator
+import kotlinx.android.synthetic.main.content_main.*
 
 
-class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener,  GestureDetector.OnDoubleTapListener, NavigationView.OnNavigationItemSelectedListener  {
-
-    override fun onDoubleTap(p0: MotionEvent?): Boolean {
-        return true
-    }
-
-    override fun onDoubleTapEvent(p0: MotionEvent?): Boolean {
-        return true
-    }
-
-    override fun onSingleTapConfirmed(p0: MotionEvent?): Boolean {
-        return true
-    }
-
-    override fun onShowPress(p0: MotionEvent?) {
-    }
-
-    override fun onSingleTapUp(p0: MotionEvent?): Boolean {
-        return true
-    }
-
-    override fun onDown(p0: MotionEvent?): Boolean {
-        return true
-    }
-
-    override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean {
-        return true
-    }
-
-    override fun onScroll(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean {
-        return true
-    }
-
-    override fun onLongPress(p0: MotionEvent?) {
-    }
-
-    var gDetector: GestureDetectorCompat? = null
-
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        this.gDetector?.onTouchEvent(event)
-        return super.onTouchEvent(event)
-    }
-
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener  {
     private lateinit var mqtt: MQTT
+
+    private val myListener =  object : GestureDetector.SimpleOnGestureListener() {
+
+        val contentCoordinates = IntArray(2)
+        override fun onDown(e: MotionEvent): Boolean {
+            content_layout.getLocationInWindow(contentCoordinates)
+            val rc = GestureParser.onDown(e.rawX, e.rawY, contentCoordinates[1])
+            val data = RandomGenerator.getRandomLED()
+
+            mqtt.sendData("$rc,$data")
+            return true
+        }
+    }
+
+    lateinit var gestureDetector: GestureDetector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        this.gDetector = GestureDetectorCompat(this, this)
-        gDetector?.setOnDoubleTapListener(this)
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        GestureParser.setScreenDimensions(displayMetrics.heightPixels, displayMetrics.widthPixels)
+
+        gestureDetector = GestureDetector(this, myListener)
+        drawer_layout.setOnTouchListener { v, event ->
+            gestureDetector.onTouchEvent(event)
+        }
 
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -104,8 +78,9 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener,  Ge
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_favorite -> {
-                val data = "-1,${RandomGenerator.getRandomLED()}"
-                mqtt.sendData(data)
+                val index = RandomGenerator.getRandomHoldRC()
+                val data = RandomGenerator.getRandomLED()
+                mqtt.sendData("$index,$data")
                 true
             }
             else -> super.onOptionsItemSelected(item)

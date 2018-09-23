@@ -24,4 +24,12 @@ object RandomGenerator {
         val b = getRandomInt(0, 255)
         return "$r,$g,$b"
     }
+
+    fun getRandomHoldRC() : String {
+        val r = Random()
+        val i = r.nextInt(11) + 'a'.toInt()
+        val letter = i.toChar().toUpperCase()
+        val number = getRandomInt(1, 18)
+        return "$letter$number"
+    }
 }
