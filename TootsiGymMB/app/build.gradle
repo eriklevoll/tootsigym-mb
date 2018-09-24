@@ -8,7 +8,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.tlab.erik_spectre.tootsigymmb"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 27
         versionCode 3
         versionName "1.1"
