@@ -11,6 +11,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import com.example.erik_spectre.tootsigymmb.R
+import com.example.erik_spectre.tootsigymmb.R.drawable.*
 import com.tlab.erik_spectre.tootsigymmb.Model.MQTT
 import com.tlab.erik_spectre.tootsigymmb.Utilities.GestureParser
 import com.tlab.erik_spectre.tootsigymmb.Utilities.RandomGenerator
@@ -21,6 +22,7 @@ import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener  {
     private lateinit var mqtt: MQTT
+    private var ledColor = "0,0,255"
 
     private val myListener =  object : GestureDetector.SimpleOnGestureListener() {
 
@@ -30,12 +32,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val rc = GestureParser.onDown(e.rawX, e.rawY, contentCoordinates[1])
             val data = RandomGenerator.getRandomLED()
 
-            mqtt.sendData("$rc,$data")
+            mqtt.sendData("$rc,$ledColor")
             return true
         }
     }
 
     lateinit var gestureDetector: GestureDetector
+
+    private var actionBarMenu: Menu? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +64,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         mqtt = MQTT(this, "m20.cloudmqtt.com", "11957", "ayogkqnq", "_e4HiuI73ywB")
         mqtt.init()
+
     }
 
     override fun onBackPressed() {
@@ -72,6 +77,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
+        this.actionBarMenu = menu
         return true
     }
 
@@ -80,11 +86,42 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_favorite -> {
                 val index = RandomGenerator.getRandomHoldRC()
                 val data = RandomGenerator.getRandomLED()
-                mqtt.sendData("$index,$data")
+                mqtt.sendData("-1,0,0,0")
+                true
+            }
+            R.id.action_red -> {
+                ledColor = "255,0,0"
+                resetTopBarColors()
+                item.setIcon(ic_menu_red_toggled)
+                true
+            }
+            R.id.action_blue -> {
+                ledColor = "0,0,255"
+                resetTopBarColors()
+                item.setIcon(ic_menu_blue_toggled)
+                true
+            }
+            R.id.action_green -> {
+                ledColor = "0,255,0"
+                resetTopBarColors()
+                item.setIcon(ic_menu_green_toggled)
+                true
+            }
+            R.id.action_blank -> {
+                ledColor = "0,0,0"
+                resetTopBarColors()
+                item.setIcon(ic_menu_blank_toggled)
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    fun resetTopBarColors() {
+        actionBarMenu?.getItem(0)?.setIcon(ic_menu_blank)
+        actionBarMenu?.getItem(1)?.setIcon(ic_menu_green)
+        actionBarMenu?.getItem(2)?.setIcon(ic_menu_blue)
+        actionBarMenu?.getItem(3)?.setIcon(ic_menu_red)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {

@@ -6,5 +6,32 @@
         android:orderInCategory="300"
         android:title="Send Data"
         android:icon="@drawable/ic_menu_send"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_red"
+        android:orderInCategory="292"
+        android:title="Red Color"
+        android:icon="@drawable/ic_menu_red"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_blue"
+        android:orderInCategory="291"
+        android:title="Blue Color"
+        android:icon="@drawable/ic_menu_blue"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_green"
+        android:orderInCategory="290"
+        android:title="Green Color"
+        android:icon="@drawable/ic_menu_green"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_blank"
+        android:orderInCategory="289"
+        android:title="Green Color"
+        android:icon="@drawable/ic_menu_blank"
+        app:showAsAction="always" />
 </menu>
