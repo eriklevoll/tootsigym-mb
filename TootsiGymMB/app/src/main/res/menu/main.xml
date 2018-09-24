@@ -19,7 +19,7 @@
         android:id="@+id/action_blue"
         android:orderInCategory="291"
         android:title="Blue Color"
-        android:icon="@drawable/ic_menu_blue"
+        android:icon="@drawable/ic_menu_blue_toggled"
         app:showAsAction="always" />
 
     <item

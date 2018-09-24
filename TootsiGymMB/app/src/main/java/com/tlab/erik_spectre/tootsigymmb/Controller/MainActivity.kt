@@ -27,13 +27,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val myListener =  object : GestureDetector.SimpleOnGestureListener() {
 
         val contentCoordinates = IntArray(2)
-        override fun onDown(e: MotionEvent): Boolean {
-            content_layout.getLocationInWindow(contentCoordinates)
-            val rc = GestureParser.onDown(e.rawX, e.rawY, contentCoordinates[1])
-            val data = RandomGenerator.getRandomLED()
 
-            mqtt.sendData("$rc,$ledColor")
-            return true
+        override fun onSingleTapUp(e: MotionEvent?): Boolean {
+            content_layout.getLocationInWindow(contentCoordinates)
+            val rc = GestureParser.onDown(e?.rawX, e?.rawY, contentCoordinates[1])
+
+            val drawerOpen = drawer_layout.isDrawerOpen(GravityCompat.START)
+            if (!drawerOpen) mqtt.sendData("$rc,$ledColor")
+            return super.onSingleTapUp(e)
+        }
+
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+            val data = RandomGenerator.getRandomLED()
+            mqtt.sendData("-1,$data")
+            return super.onFling(e1, e2, velocityX, velocityY)
         }
     }
 

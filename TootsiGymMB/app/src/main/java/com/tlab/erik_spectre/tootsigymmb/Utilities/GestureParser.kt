@@ -12,12 +12,12 @@ object GestureParser {
     }
 
 
-    fun onDown(X: Float, Y: Float, t: Int): String {
+    fun onDown(X: Float?, Y: Float?, t: Int): String {
         topbarHeight = t
-        val x = X
-        val y = Y - topbarHeight
+        if (X == null) return ""
+        if (Y == null) return ""
 
-        return convertCoordToRC(x, y)
+        return convertCoordToRC(X, Y - topbarHeight)
     }
 
     fun convertCoordToRC(x: Float, y: Float) : String {
