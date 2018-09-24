@@ -17,11 +17,31 @@ class MQTT(private val context: Context,
 
     fun init() {
         client = MqttAndroidClient(context, "tcp://$address:$port", clientId)
+        client.setCallback(MQTTConnectionCallback)
         connectionOptions = MqttConnectOptions()
         connectionOptions.userName = username
         connectionOptions.password = password.toCharArray()
         println("Im here!")
         startConnection()
+    }
+
+    private object MQTTConnectionCallback: MqttCallbackExtended {
+        override fun connectComplete(b: Boolean, s: String) {
+            println("Connect complete, $s")
+        }
+
+        override fun connectionLost(throwable: Throwable) {
+            println("Connect lost")
+        }
+
+        @Throws(Exception::class)
+        override fun messageArrived(topic: String, mqttMessage: MqttMessage) {
+            println("messageArrived, $mqttMessage")
+        }
+
+        override fun deliveryComplete(iMqttDeliveryToken: IMqttDeliveryToken) {
+            println("deliveryComplete")
+        }
     }
 
     private fun startConnection()
@@ -45,7 +65,7 @@ class MQTT(private val context: Context,
 
     private fun subscribeToTopic() {
         try {
-            client.subscribe("moon", 0)
+            client.subscribe("moon_resp", 0)
             println("Success subscribe")
             publishToTopic("Connected")
         } catch (e: MqttException) {
