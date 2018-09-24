@@ -6,14 +6,19 @@ object GestureParser {
     var width = 0;
     private var topbarHeight = 0
 
-    fun setScreenDimensions(h: Int, w: Int) {
+    fun setScreenDimensions(h: Int, w: Int, topBarH: Int) {
         height = h
         width = w
+        topbarHeight = topBarH
+        println("Dims set. H: $h, w: $w, top: $topbarHeight")
+    }
+
+    fun getScreenDimensions(): IntArray {
+        return intArrayOf(height, width, topbarHeight)
     }
 
 
-    fun onDown(X: Float?, Y: Float?, t: Int): String {
-        topbarHeight = t
+    fun onDown(X: Float?, Y: Float?): String {
         if (X == null) return ""
         if (Y == null) return ""
 
