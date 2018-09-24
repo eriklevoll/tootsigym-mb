@@ -1,8 +1,5 @@
 package com.tlab.erik_spectre.tootsigymmb.Controller
 
-import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -14,38 +11,11 @@ import com.example.erik_spectre.tootsigymmb.R
 import com.example.erik_spectre.tootsigymmb.R.drawable.*
 import com.tlab.erik_spectre.tootsigymmb.Model.MQTT
 import com.tlab.erik_spectre.tootsigymmb.Utilities.GestureParser
+import com.tlab.erik_spectre.tootsigymmb.Utilities.HoldsCanvas
 import com.tlab.erik_spectre.tootsigymmb.Utilities.RandomGenerator
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
-
-
-class HoldsCanvas (context: Context): View(context) {
-
-    private var screenHeight    = 0
-    private var screenWidth     = 0
-    private var topBarHeight    = 0
-
-    override fun onDraw (canvas: Canvas) {
-        println("Top bar Canvas: $topBarHeight")
-        canvas.drawARGB (0,255, 0, 255)
-        val width = width
-        val hieght = height
-        val brush1 = Paint ()
-        brush1.setARGB (255, 255, 0, 0)
-        brush1.style = Paint.Style.STROKE
-        for (f in 0..9)
-            canvas.drawCircle ((width / 2) .toFloat (), (hieght / 2) .toFloat (), (f * 15) .toFloat (), brush1)
-        canvas.drawCircle(100f, 214.5f-topBarHeight, 2.5f, brush1)
-    }
-
-    fun updateDimensions(screenDims: IntArray) {
-        screenHeight    = screenDims[0]
-        screenWidth     = screenDims[1]
-        topBarHeight    = screenDims[2]
-    }
-}
-
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener  {
     private lateinit var mqtt: MQTT
