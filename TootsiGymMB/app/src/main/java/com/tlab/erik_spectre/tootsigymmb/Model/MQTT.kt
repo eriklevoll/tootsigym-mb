@@ -1,6 +1,7 @@
 package com.tlab.erik_spectre.tootsigymmb.Model
 
 import android.content.Context
+import com.tlab.erik_spectre.tootsigymmb.Utilities.HoldsCanvas
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 
@@ -25,6 +26,12 @@ class MQTT(private val context: Context,
         startConnection()
     }
 
+    private object Test {
+        fun lulz() {
+
+        }
+    }
+
     private object MQTTConnectionCallback: MqttCallbackExtended {
         override fun connectComplete(b: Boolean, s: String) {
             println("Connect complete, $s")
@@ -42,6 +49,10 @@ class MQTT(private val context: Context,
         override fun deliveryComplete(iMqttDeliveryToken: IMqttDeliveryToken) {
             println("deliveryComplete")
         }
+    }
+
+    private fun parseInputData(data: String) {
+
     }
 
     private fun startConnection()

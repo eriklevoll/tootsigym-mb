@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var ledColor = BLUE_COLOR
     private var actionBarMenu: Menu? = null
 
-    lateinit var holdsCanvas: HoldsCanvas
+    //lateinit var holdsCanvas: HoldsCanvas
 
     private val gestureListener =  object : GestureDetector.SimpleOnGestureListener() {
 
@@ -41,7 +41,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val drawerOpen = drawer_layout.isDrawerOpen(GravityCompat.START)
             if (!drawerOpen) mqtt.sendData("$rc,$ledColor")
 
-            holdsCanvas.drawHoldCircle(rc, ledColor)
+            //holdsCanvas.drawHoldCircle(rc, ledColor)
+            CanvasData.addHold(rc, Color.BLUE)
+            HoldsCanvas.updateCanvas()
 
             return super.onSingleTapUp(e)
         }
@@ -70,10 +72,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.setNavigationItemSelectedListener(this)
 
+
+        HoldsCanvas.setCanvasImage(canvasImage)
+        //holdsCanvas = HoldsCanvas(canvasImage)
+        //holdsCanvas.init()
+
         mqtt = MQTT(this, "m20.cloudmqtt.com", "11957", "ayogkqnq", "_e4HiuI73ywB")
         mqtt.init()
-
-        holdsCanvas = HoldsCanvas(canvasImage)
 
         //Set content dimensions after content layout has loaded
         content_layout.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
@@ -85,7 +90,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             GestureParser.setScreenDimensions(displayMetrics.heightPixels, displayMetrics.widthPixels, contentCoordinates[1])
 
             println("screen. height: ${displayMetrics.heightPixels}, width: ${displayMetrics.widthPixels}")
-            holdsCanvas.init(GestureParser.getScreenDimensions())
+            HoldsCanvas.init(GestureParser.getScreenDimensions())
         }
     }
 
@@ -108,7 +113,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_favorite -> {
                 val index = RandomGenerator.getRandomHoldRC()
                 val data = RandomGenerator.getRandomLED()
-                holdsCanvas.clear()
+                HoldsCanvas.clear()
                 mqtt.sendData("-1,0,0,0")
                 true
             }
