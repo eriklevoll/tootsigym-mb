@@ -19,11 +19,6 @@ import com.tlab.erik_spectre.tootsigymmb.Utilities.RandomGenerator
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.R.attr.bitmap
-import android.opengl.ETC1.getHeight
-import android.opengl.ETC1.getWidth
 import com.tlab.erik_spectre.tootsigymmb.Utilities.HoldsCanvas
 
 
@@ -31,7 +26,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mqtt: MQTT
     private var ledColor = "0,0,255"
 
-    private val myListener =  object : GestureDetector.SimpleOnGestureListener() {
+    private val gestureListener =  object : GestureDetector.SimpleOnGestureListener() {
 
         val contentCoordinates = IntArray(2)
 
@@ -43,23 +38,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val drawerOpen = drawer_layout.isDrawerOpen(GravityCompat.START)
             if (!drawerOpen) mqtt.sendData("$rc,$ledColor")
             println("${e?.x}, ${e?.rawY}")
-            val paint = Paint()
-            paint.isAntiAlias = true
-            paint.color = Color.RED
 
-            val u = e?.x
-            val u2 = e?.rawY
-            if (u == null) return super.onSingleTapUp(e)
-            if (u2 == null) return super.onSingleTapUp(e)
-
-//            canvas.drawCircle(82f, 920f-92, 2.5f, paint) //A1
-//            canvas.drawCircle(82f, 170f-92, 2.5f, paint) //A18
-//            canvas.drawCircle(547.5f, 920f-92, 2.5f, paint) // K1
-//            canvas.drawCircle(547.5f, 170f-92, 2.5f, paint) //K18
-//            canvas.drawCircle(175.5f, 170f-92, 2.5f, paint) // C18
-            //canvas.drawCircle(u, u2-94+30, 10f, paint) // C18
-            holdsCanvas.drawCircle(u, u2-94)
-            mainImage.invalidate()
+            holdsCanvas.drawCircle(175f, 170f-94, Color.BLUE) //B18
+            holdsCanvas.drawCircle(502f, 170f-94, Color.GREEN)    //J18
+            holdsCanvas.drawCircle(82f, 920f-94, Color.RED)    //A1
+            holdsCanvas.drawCircle(547.5f, 920f-94, Color.BLACK)    //K1
             return super.onSingleTapUp(e)
         }
 
@@ -81,7 +64,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        gestureDetector = GestureDetector(this, myListener)
+        gestureDetector = GestureDetector(this, gestureListener)
         drawer_layout.setOnTouchListener { v, event ->
             gestureDetector.onTouchEvent(event)
         }

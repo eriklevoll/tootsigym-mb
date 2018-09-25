@@ -19,10 +19,12 @@ class HoldsCanvas (val canvasImage: ImageView) {
         imageView.setImageBitmap(bitmap)
     }
 
-    fun drawCircle(x: Float, y: Float) {
+    fun drawCircle(x: Float, y: Float, color: Int) {
         val paint = Paint()
         paint.isAntiAlias = true
-        paint.color = Color.BLUE
-        canvas.drawCircle(x, y, 10f, paint)
+        paint.color = color
+        paint.style = Paint.Style.STROKE
+        canvas.drawCircle(x, y, 3f, paint)
+        canvasImage.invalidate()
     }
 }
