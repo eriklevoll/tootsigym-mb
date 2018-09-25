@@ -8,10 +8,10 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.tlab.erik_spectre.tootsigymmb"
-        minSdkVersion 19
+        minSdkVersion 14
         targetSdkVersion 27
-        versionCode 3
-        versionName "1.1"
+        versionCode 6
+        versionName "1.3.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
