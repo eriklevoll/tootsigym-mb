@@ -15,27 +15,24 @@ object CanvasData {
 
     fun addHold(hold: String, color: Int) {
         holdsData[hold] = color
+        HoldsCanvas.updateCanvas()
     }
 
     fun addHold(hold: String, color: String) {
         val c = HoldsCanvas.convertColorString(color)
         holdsData[hold] = c
+        HoldsCanvas.updateCanvas()
     }
 
     fun removeHold(hold: String) {
         holdsData.remove(hold)
+        HoldsCanvas.updateCanvas()
     }
 }
 
 
 
 object HoldsCanvas {
-
-    //private lateinit var canvas: Canvas
-    //private lateinit var canvasPaint: Paint
-    //private var holdsData: HashMap<String, Int> = hashMapOf()
-    //private var height = 0
-    //private var canvasImage: ImageView = ImageView(this)
 
     fun init(screenSize: IntArray) {
         height = screenSize[0]
@@ -53,48 +50,34 @@ object HoldsCanvas {
         CanvasData.canvasPaint = canvasPaint
         CanvasData.mainCanvas = canvas
 
-        //CanvasData.canvasView = canvasImage
         CanvasData.canvasView.setImageBitmap(bitmap)
     }
     fun setCanvasImage(image: ImageView) {
         CanvasData.canvasView = image
     }
 
-//    fun addHold(hold: String, color: Int) {
-//        holdsData[hold] = color
-//    }
-//
-//    fun addHold(hold: String, color: String) {
-//        val c = convertColorString(color)
-//        holdsData[hold] = c
-//    }
-//
-//    fun removeHold(hold: String) {
-//        holdsData.remove(hold)
-//    }
-
-    fun drawCircle(x: Float, y: Float, color: Int) {
+    fun drawCircle(x: Float, y: Float, color: Int, updating: Boolean = false) {
         CanvasData.canvasPaint.color = color
         CanvasData.mainCanvas.drawCircle(x, y, RADIUS_MULTIPLIER * height, CanvasData.canvasPaint)
-        CanvasData.canvasView.invalidate()
+        if (!updating) CanvasData.canvasView.invalidate()
     }
 
-    fun drawHoldCircle(hold: String, color: Int) {
+    fun drawHoldCircle(hold: String, color: Int, updating: Boolean = false) {
         val coords = GestureParser.convertRCtoCoord(hold)
         val x = coords[0]
         val y = coords[1]
 
-        drawCircle(x, y, color)
+        drawCircle(x, y, color, updating)
     }
 
-    fun drawHoldCircle(hold: String, c: String) {
+    fun drawHoldCircle(hold: String, c: String, updating: Boolean = false) {
         val coords = GestureParser.convertRCtoCoord(hold)
         val x = coords[0]
         val y = coords[1]
 
         val color = convertColorString(c)
 
-        drawCircle(x, y, color)
+        drawCircle(x, y, color, updating)
     }
 
     fun convertColorString(c: String): Int {
@@ -113,12 +96,14 @@ object HoldsCanvas {
 
         for ((hold, color) in CanvasData.holdsData) {
             println("$hold: $color")
-            drawHoldCircle(hold, color)
+            drawHoldCircle(hold, color, true)
         }
+        CanvasData.canvasView.invalidate()
     }
 
     fun clear(clearData: Boolean = true) {
         if (clearData) CanvasData.holdsData.clear()
         CanvasData.mainCanvas.drawColor(0, PorterDuff.Mode.CLEAR)
+        CanvasData.canvasView.invalidate()
     }
 }

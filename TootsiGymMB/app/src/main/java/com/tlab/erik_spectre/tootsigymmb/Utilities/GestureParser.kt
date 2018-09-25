@@ -17,7 +17,7 @@ object GestureParser {
         height = h
         width = w
         topBarHeight = topBarH
-        println("Dims set. H: $h, w: $w, top: $topBarHeight")
+        //println("Dims set. H: $h, w: $w, top: $topBarHeight")
     }
 
     fun getScreenDimensions(): IntArray {
@@ -40,7 +40,7 @@ object GestureParser {
         val col = Math.round(COL_SLOPE * relativeX + COL_INTERCEPT)
         val cCol = (col+64).toChar()
 
-        println("$cCol$row")
+        //println("$cCol$row")
 
         //return convertRCtoCoord("$cCol$row")
 
@@ -61,7 +61,7 @@ object GestureParser {
 //            val x = (COL_SLOPE_RC2PX * col + COL_INTERCEPT_RC2PX) * width
 //            val y = (ROW_SLOPE_RC2PX * row + ROW_INTERCEPT_RC2PX) * (height + topBarHeight)
 
-            println("Got $x, $y, $col, $row")
+            //println("Got $x, $y, $col, $row")
 
             floatArrayOf(x.toFloat(),y.toFloat())
 

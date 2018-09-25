@@ -28,8 +28,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var ledColor = BLUE_COLOR
     private var actionBarMenu: Menu? = null
 
-    //lateinit var holdsCanvas: HoldsCanvas
-
     private val gestureListener =  object : GestureDetector.SimpleOnGestureListener() {
 
         val contentCoordinates = IntArray(2)
@@ -39,11 +37,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val rc = GestureParser.onDown(e?.rawX, e?.rawY)
 
             val drawerOpen = drawer_layout.isDrawerOpen(GravityCompat.START)
-            if (!drawerOpen) mqtt.sendData("$rc,$ledColor")
+            if (drawerOpen) super.onSingleTapUp(e)
 
-            //holdsCanvas.drawHoldCircle(rc, ledColor)
-            CanvasData.addHold(rc, Color.BLUE)
-            HoldsCanvas.updateCanvas()
+            mqtt.sendData("$rc,$ledColor")
+            CanvasData.addHold(rc, ledColor)
 
             return super.onSingleTapUp(e)
         }
@@ -74,8 +71,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
         HoldsCanvas.setCanvasImage(canvasImage)
-        //holdsCanvas = HoldsCanvas(canvasImage)
-        //holdsCanvas.init()
 
         mqtt = MQTT(this, "m20.cloudmqtt.com", "11957", "ayogkqnq", "_e4HiuI73ywB")
         mqtt.init()
