@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         override fun onSingleTapUp(e: MotionEvent?): Boolean {
             content_layout.getLocationInWindow(contentCoordinates)
             val rc = GestureParser.onDown(e?.rawX, e?.rawY)
+            if (rc == "") return super.onSingleTapUp(e)
 
             val drawerOpen = drawer_layout.isDrawerOpen(GravityCompat.START)
             if (drawerOpen) return super.onSingleTapUp(e)
