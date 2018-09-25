@@ -108,6 +108,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.action_favorite -> {
                 val index = RandomGenerator.getRandomHoldRC()
                 val data = RandomGenerator.getRandomLED()
+                holdsCanvas.clear()
                 mqtt.sendData("-1,0,0,0")
                 true
             }

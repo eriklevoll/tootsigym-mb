@@ -62,4 +62,8 @@ class HoldsCanvas (val canvasImage: ImageView) {
 
         }
     }
+
+    fun clear() {
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR)
+    }
 }
