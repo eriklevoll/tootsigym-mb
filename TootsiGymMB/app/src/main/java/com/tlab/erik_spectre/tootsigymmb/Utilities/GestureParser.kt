@@ -25,7 +25,7 @@ object GestureParser {
         return convertCoordToRC(X, Y - topbarHeight)
     }
 
-    fun convertCoordToRC(x: Float, y: Float) : String {
+    private fun convertCoordToRC(x: Float, y: Float) : String {
         val relativeX = x / width
         val relativeY = y / (height - topbarHeight)
         val row = Math.round(-19.8596026 * relativeY + 19.75629139)
