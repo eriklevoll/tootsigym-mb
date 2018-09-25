@@ -14,12 +14,10 @@ import android.view.MotionEvent
 import com.example.erik_spectre.tootsigymmb.R
 import com.example.erik_spectre.tootsigymmb.R.drawable.*
 import com.tlab.erik_spectre.tootsigymmb.Model.MQTT
-import com.tlab.erik_spectre.tootsigymmb.Utilities.GestureParser
-import com.tlab.erik_spectre.tootsigymmb.Utilities.RandomGenerator
+import com.tlab.erik_spectre.tootsigymmb.Utilities.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import com.tlab.erik_spectre.tootsigymmb.Utilities.HoldsCanvas
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener  {
@@ -27,7 +25,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mqtt: MQTT
     private lateinit var gestureDetector: GestureDetector
 
-    private var ledColor = "0,0,255"
+    private var ledColor = BLUE_COLOR
     private var actionBarMenu: Menu? = null
 
     lateinit var holdsCanvas: HoldsCanvas
@@ -43,7 +41,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val drawerOpen = drawer_layout.isDrawerOpen(GravityCompat.START)
             if (!drawerOpen) mqtt.sendData("$rc,$ledColor")
 
-            holdsCanvas.drawHoldCircle(rc, Color.BLUE)
+            holdsCanvas.drawHoldCircle(rc, ledColor)
 
             return super.onSingleTapUp(e)
         }
@@ -114,25 +112,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 true
             }
             R.id.action_red -> {
-                ledColor = "255,0,0"
+                ledColor = RED_COLOR
                 resetTopBarColors()
                 item.setIcon(ic_menu_red_toggled)
                 true
             }
             R.id.action_blue -> {
-                ledColor = "0,0,255"
+                ledColor = BLUE_COLOR
                 resetTopBarColors()
                 item.setIcon(ic_menu_blue_toggled)
                 true
             }
             R.id.action_green -> {
-                ledColor = "0,255,0"
+                ledColor = GREEN_COLOR
                 resetTopBarColors()
                 item.setIcon(ic_menu_green_toggled)
                 true
             }
             R.id.action_blank -> {
-                ledColor = "0,0,0"
+                ledColor = NO_COLOR
                 resetTopBarColors()
                 item.setIcon(ic_menu_blank_toggled)
                 true

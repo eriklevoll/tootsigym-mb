@@ -3,8 +3,7 @@ package com.tlab.erik_spectre.tootsigymmb.Utilities
 import android.graphics.*
 import android.widget.ImageView
 
-private const val RADIUS_MULTIPLIER = 0.017f
-private const val STROKE_MULTIPLIER = 0.0065f
+
 
 class HoldsCanvas (val canvasImage: ImageView) {
 
@@ -41,5 +40,26 @@ class HoldsCanvas (val canvasImage: ImageView) {
         val y = coords[1]
 
         drawCircle(x, y, color)
+    }
+
+    fun drawHoldCircle(hold: String, c: String) {
+        val coords = GestureParser.convertRCtoCoord(hold)
+        val x = coords[0]
+        val y = coords[1]
+
+        val color = convertColorString(c)
+
+        drawCircle(x, y, color)
+    }
+
+    private fun convertColorString(c: String): Int {
+        return when (c) {
+            NO_COLOR -> Color.TRANSPARENT
+            RED_COLOR -> Color.RED
+            BLUE_COLOR -> Color.BLUE
+            GREEN_COLOR -> Color.GREEN
+            else -> Color.BLUE
+
+        }
     }
 }
