@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val rc = GestureParser.onDown(e?.rawX, e?.rawY)
 
             val drawerOpen = drawer_layout.isDrawerOpen(GravityCompat.START)
-            if (drawerOpen) super.onSingleTapUp(e)
+            if (drawerOpen) return super.onSingleTapUp(e)
 
             mqtt.sendData("$rc,$ledColor")
             CanvasData.addHold(rc, ledColor)
@@ -47,7 +47,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
             val data = RandomGenerator.getRandomLED()
-            mqtt.sendData("-1,$data")
+
+            val x1 = e1?.x ?: 0f
+            val x2 = e2?.x ?: 0f
+            val y1 = e1?.y ?: 0f
+            val y2 = e2?.y ?: 0f
+
+            val screen = GestureParser.getScreenDimensions()
+            val height = screen[0]
+            val width = screen[1]
+
+            val deltaX = Math.abs(x2 - x1) / width
+            val deltaY = Math.abs(y2-y1) / height
+
+            if (deltaY > 0.2 || deltaX < 0.15)
+                mqtt.sendData("-1,$data")
+            else
+                drawer_layout.openDrawer(GravityCompat.START)
+
             return super.onFling(e1, e2, velocityX, velocityY)
         }
     }

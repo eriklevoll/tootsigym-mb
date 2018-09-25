@@ -91,11 +91,9 @@ object HoldsCanvas {
     }
 
     fun updateCanvas() {
-        println(CanvasData.holdsData)
         clear(false)
 
         for ((hold, color) in CanvasData.holdsData) {
-            println("$hold: $color")
             drawHoldCircle(hold, color, true)
         }
         CanvasData.canvasView.invalidate()
