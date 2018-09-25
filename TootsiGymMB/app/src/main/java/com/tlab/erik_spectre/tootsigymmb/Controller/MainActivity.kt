@@ -23,8 +23,14 @@ import com.tlab.erik_spectre.tootsigymmb.Utilities.HoldsCanvas
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener  {
+
     private lateinit var mqtt: MQTT
+    private lateinit var gestureDetector: GestureDetector
+
     private var ledColor = "0,0,255"
+    private var actionBarMenu: Menu? = null
+
+    lateinit var holdsCanvas: HoldsCanvas
 
     private val gestureListener =  object : GestureDetector.SimpleOnGestureListener() {
 
@@ -32,17 +38,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         override fun onSingleTapUp(e: MotionEvent?): Boolean {
             content_layout.getLocationInWindow(contentCoordinates)
-            println("Top height: ${contentCoordinates[1]}")
             val rc = GestureParser.onDown(e?.rawX, e?.rawY)
 
             val drawerOpen = drawer_layout.isDrawerOpen(GravityCompat.START)
             if (!drawerOpen) mqtt.sendData("$rc,$ledColor")
-            println("${e?.x}, ${e?.rawY}")
 
-            holdsCanvas.drawCircle(175f, 170f-94, Color.BLUE) //B18
-            holdsCanvas.drawCircle(502f, 170f-94, Color.GREEN)    //J18
-            holdsCanvas.drawCircle(82f, 920f-94, Color.RED)    //A1
-            holdsCanvas.drawCircle(547.5f, 920f-94, Color.BLACK)    //K1
+            holdsCanvas.drawHoldCircle(rc, Color.BLUE)
+
             return super.onSingleTapUp(e)
         }
 
@@ -52,12 +54,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return super.onFling(e1, e2, velocityX, velocityY)
         }
     }
-
-    lateinit var gestureDetector: GestureDetector
-    private var actionBarMenu: Menu? = null
-
-    lateinit var holdsCanvas: HoldsCanvas
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
