@@ -7,6 +7,12 @@
         android:title="Send Data"
         android:icon="@drawable/ic_menu_send"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/action_glow"
+        android:orderInCategory="293"
+        android:title="Send Data"
+        android:icon="@drawable/ic_menu_star"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/action_red"

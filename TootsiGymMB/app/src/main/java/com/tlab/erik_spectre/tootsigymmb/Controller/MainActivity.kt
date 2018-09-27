@@ -1,6 +1,5 @@
 package com.tlab.erik_spectre.tootsigymmb.Controller
 
-import android.graphics.*
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -30,10 +29,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private val gestureListener =  object : GestureDetector.SimpleOnGestureListener() {
 
-        val contentCoordinates = IntArray(2)
-
         override fun onSingleTapUp(e: MotionEvent?): Boolean {
-            content_layout.getLocationInWindow(contentCoordinates)
             val rc = GestureParser.onDown(e?.rawX, e?.rawY)
             if (rc == "") return super.onSingleTapUp(e)
 
@@ -46,27 +42,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return super.onSingleTapUp(e)
         }
 
-        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
-            val data = RandomGenerator.getRandomLED()
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+            val x = e1?.x ?: 0f
+            if (x / GestureParser.width < 0.1) return super.onScroll(e1, e2, distanceX, distanceY)
 
-            val x1 = e1?.x ?: 0f
-            val x2 = e2?.x ?: 0f
-            val y1 = e1?.y ?: 0f
-            val y2 = e2?.y ?: 0f
+            val rc = GestureParser.onDown(e2?.rawX, e2?.rawY, true)
+            if (rc == "") return super.onScroll(e1, e2, distanceX, distanceY)
 
-            val screen = GestureParser.getScreenDimensions()
-            val height = screen[0]
-            val width = screen[1]
+            mqtt.sendData("$rc,$ledColor")
+            CanvasData.addHold(rc, ledColor)
 
-            val deltaX = Math.abs(x2 - x1) / width
-            val deltaY = Math.abs(y2-y1) / height
-
-            if (deltaY > 0.6 && deltaX < 0.15)
-                mqtt.sendData("-1,$data")
-            else if (deltaY <= 0.2 && deltaX >= 0.15)
-                drawer_layout.openDrawer(GravityCompat.START)
-
-            return super.onFling(e1, e2, velocityX, velocityY)
+            return super.onScroll(e1, e2, distanceX, distanceY)
         }
     }
 
@@ -130,6 +116,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 mqtt.sendData("-1,0,0,0")
                 true
             }
+            R.id.action_glow -> {
+                val data = RandomGenerator.getRandomLED()
+                mqtt.sendData("-1,$data")
+                true
+            }
             R.id.action_red -> {
                 ledColor = RED_COLOR
                 resetTopBarColors()
@@ -158,7 +149,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    fun resetTopBarColors() {
+    private fun resetTopBarColors() {
         actionBarMenu?.getItem(0)?.setIcon(ic_menu_blank)
         actionBarMenu?.getItem(1)?.setIcon(ic_menu_green)
         actionBarMenu?.getItem(2)?.setIcon(ic_menu_blue)
@@ -166,7 +157,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        var closeNav = true
         when (item.itemId) {
             R.id.nav_grid -> {
 
@@ -179,8 +169,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
-        if (closeNav)
-            drawer_layout.closeDrawer(GravityCompat.START)
+        drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }
 }

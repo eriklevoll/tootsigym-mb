@@ -4,9 +4,10 @@ import java.lang.Exception
 
 object GestureParser {
 
-    var height = 0;
-    var width = 0;
+    var height = 0
+    var width = 0
     private var topBarHeight = 0
+    private var previousRC = ""
 
     private const val ROW_SLOPE = -19.992
     private const val ROW_INTERCEPT = 19.72267
@@ -23,11 +24,25 @@ object GestureParser {
         return intArrayOf(height, width, topBarHeight)
     }
 
-    fun onDown(X: Float?, Y: Float?): String {
+    fun onDown(X: Float?, Y: Float?, scroll: Boolean = false): String {
         if (X == null) return ""
         if (Y == null) return ""
 
-        return convertCoordToRC(X, Y)
+        val rc = convertCoordToRC(X, Y)
+
+        return if (!scroll) rc
+        else {
+            if (sameAsPreviousRC(rc)) ""
+            else rc
+        }
+    }
+
+    private fun sameAsPreviousRC(rc: String) : Boolean {
+        return if (rc == previousRC) true
+        else {
+            previousRC = rc
+            false
+        }
     }
 
     private fun convertCoordToRC(x: Float, y: Float) : String {
