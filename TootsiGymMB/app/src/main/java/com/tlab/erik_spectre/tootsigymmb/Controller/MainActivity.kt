@@ -61,9 +61,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val deltaX = Math.abs(x2 - x1) / width
             val deltaY = Math.abs(y2-y1) / height
 
-            if (deltaY > 0.2 || deltaX < 0.15)
+            if (deltaY > 0.6 && deltaX < 0.15)
                 mqtt.sendData("-1,$data")
-            else
+            else if (deltaY <= 0.2 && deltaX >= 0.15)
                 drawer_layout.openDrawer(GravityCompat.START)
 
             return super.onFling(e1, e2, velocityX, velocityY)
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         gestureDetector = GestureDetector(this, gestureListener)
-        drawer_layout.setOnTouchListener { v, event ->
+        drawer_layout.setOnTouchListener { _, event ->
             gestureDetector.onTouchEvent(event)
         }
 
@@ -126,8 +126,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_favorite -> {
-                val index = RandomGenerator.getRandomHoldRC()
-                val data = RandomGenerator.getRandomLED()
                 HoldsCanvas.clear()
                 mqtt.sendData("-1,0,0,0")
                 true
