@@ -23,14 +23,7 @@ class MQTT(private val context: Context,
         connectionOptions = MqttConnectOptions()
         connectionOptions.userName = username
         connectionOptions.password = password.toCharArray()
-        println("Im here!")
         startConnection()
-    }
-
-    private object Test {
-        fun lulz() {
-
-        }
     }
 
     private object MQTTConnectionCallback: MqttCallbackExtended {
