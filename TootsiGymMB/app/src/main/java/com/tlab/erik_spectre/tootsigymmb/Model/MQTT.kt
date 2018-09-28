@@ -1,7 +1,7 @@
 package com.tlab.erik_spectre.tootsigymmb.Model
 
 import android.content.Context
-import com.tlab.erik_spectre.tootsigymmb.Utilities.CanvasData
+import com.tlab.erik_spectre.tootsigymmb.Utilities.DataParser
 import com.tlab.erik_spectre.tootsigymmb.Utilities.HoldsCanvas
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
@@ -38,35 +38,11 @@ class MQTT(private val context: Context,
         @Throws(Exception::class)
         override fun messageArrived(topic: String, mqttMessage: MqttMessage) {
             println("messageArrived, $mqttMessage")
-            parseInputData(mqttMessage.toString())
+            DataParser.parseMQTTResponseData(mqttMessage.toString())
         }
 
         override fun deliveryComplete(iMqttDeliveryToken: IMqttDeliveryToken) {
             println("deliveryComplete")
-        }
-
-        private fun parseInputData(data: String) {
-            try {
-                val vals = data.split(":")[1]
-                val holdData = vals.split(",")
-                val rc = holdData[0]
-                if (rc == "-1") {
-                    HoldsCanvas.clear()
-                    return
-                }
-                val r = holdData[1]
-                val g = holdData[2]
-                val b = holdData[3]
-
-                if (r == "0" && g == "0" && b == "0") {
-                    CanvasData.removeHold(rc)
-                } else {
-                    CanvasData.addHold(rc, "$r,$g,$b")
-                }
-            } catch (e: Exception) {
-                println("Failed to parse response, ${e.message}")
-            }
-
         }
     }
 

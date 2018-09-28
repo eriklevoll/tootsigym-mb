@@ -5,8 +5,9 @@ import android.graphics.*
 import android.widget.ImageView
 import com.tlab.erik_spectre.tootsigymmb.Utilities.GestureParser.height
 
+
 @SuppressLint("StaticFieldLeak")
-object CanvasData {
+object HoldsCanvas {
     var canvasPaint = Paint()
     var mainCanvas = Canvas()
 
@@ -18,48 +19,38 @@ object CanvasData {
         HoldsCanvas.updateCanvas()
     }
 
-    fun addHold(hold: String, color: String) {
+    fun addHold(hold: String, color: String, update: Boolean = true) {
         val c = HoldsCanvas.convertColorString(color)
         holdsData[hold] = c
-        HoldsCanvas.updateCanvas()
+        if (update) HoldsCanvas.updateCanvas()
     }
 
     fun removeHold(hold: String) {
         holdsData.remove(hold)
         HoldsCanvas.updateCanvas()
     }
-}
-
-
-
-object HoldsCanvas {
-
     fun init(screenSize: IntArray) {
         height = screenSize[0]
         val width = screenSize[1]
         val top = screenSize[2]
 
-        val canvasPaint = Paint()
+        canvasPaint = Paint()
         canvasPaint.isAntiAlias = true
         canvasPaint.style = Paint.Style.STROKE
         canvasPaint.strokeWidth = STROKE_MULTIPLIER * height
 
         val bitmap = Bitmap.createBitmap(width, height-top, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-
-        CanvasData.canvasPaint = canvasPaint
-        CanvasData.mainCanvas = canvas
-
-        CanvasData.canvasView.setImageBitmap(bitmap)
+        mainCanvas = Canvas(bitmap)
+        canvasView.setImageBitmap(bitmap)
     }
     fun setCanvasImage(image: ImageView) {
-        CanvasData.canvasView = image
+        canvasView = image
     }
 
     fun drawCircle(x: Float, y: Float, color: Int, updating: Boolean = false) {
-        CanvasData.canvasPaint.color = color
-        CanvasData.mainCanvas.drawCircle(x, y, RADIUS_MULTIPLIER * height, CanvasData.canvasPaint)
-        if (!updating) CanvasData.canvasView.invalidate()
+        canvasPaint.color = color
+        mainCanvas.drawCircle(x, y, RADIUS_MULTIPLIER * height, canvasPaint)
+        if (!updating) canvasView.invalidate()
     }
 
     fun drawHoldCircle(hold: String, color: Int, updating: Boolean = false) {
@@ -93,15 +84,15 @@ object HoldsCanvas {
     fun updateCanvas() {
         clear(false)
 
-        for ((hold, color) in CanvasData.holdsData) {
+        for ((hold, color) in holdsData) {
             drawHoldCircle(hold, color, true)
         }
-        CanvasData.canvasView.invalidate()
+        canvasView.invalidate()
     }
 
     fun clear(clearData: Boolean = true) {
-        if (clearData) CanvasData.holdsData.clear()
-        CanvasData.mainCanvas.drawColor(0, PorterDuff.Mode.CLEAR)
-        CanvasData.canvasView.invalidate()
+        if (clearData) holdsData.clear()
+        mainCanvas.drawColor(0, PorterDuff.Mode.CLEAR)
+        canvasView.invalidate()
     }
 }
