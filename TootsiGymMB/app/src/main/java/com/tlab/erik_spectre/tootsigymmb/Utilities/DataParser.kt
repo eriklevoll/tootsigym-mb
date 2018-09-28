@@ -1,5 +1,9 @@
 package com.tlab.erik_spectre.tootsigymmb.Utilities
 
+import android.app.Application
+import android.app.PendingIntent.getActivity
+import java.io.IOException
+
 object DataParser {
 
     fun parseMQTTResponseData(data: String) {
@@ -46,5 +50,13 @@ object DataParser {
             HoldsCanvas.addHold(hold, "255,0,0", false)
         }
         HoldsCanvas.updateCanvas()
+    }
+
+    fun loadJSONFromAsset(app: Application): String {
+        val file_name = "routes.json"
+        val json_string = app.assets.open(file_name).bufferedReader().use {
+            it.readText()
+        }
+        return json_string
     }
 }
