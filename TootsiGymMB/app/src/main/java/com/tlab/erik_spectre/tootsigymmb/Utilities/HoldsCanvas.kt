@@ -19,10 +19,10 @@ object HoldsCanvas {
         HoldsCanvas.updateCanvas()
     }
 
-    fun addHold(hold: String, color: String) {
+    fun addHold(hold: String, color: String, update: Boolean = true) {
         val c = HoldsCanvas.convertColorString(color)
         holdsData[hold] = c
-        HoldsCanvas.updateCanvas()
+        if (update) HoldsCanvas.updateCanvas()
     }
 
     fun removeHold(hold: String) {

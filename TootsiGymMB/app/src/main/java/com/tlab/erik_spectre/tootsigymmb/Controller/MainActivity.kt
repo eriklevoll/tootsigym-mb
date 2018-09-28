@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var ledColor = BLUE_COLOR
     private var actionBarMenu: Menu? = null
     private var viewMode = VIEWMODE_GRID
+    private var UIInitialized = false
 
     private val gestureListener =  object : GestureDetector.SimpleOnGestureListener() {
 
@@ -75,24 +76,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.setNavigationItemSelectedListener(this)
 
-
         HoldsCanvas.setCanvasImage(canvasImage)
 
         mqtt = MQTT(this, "m20.cloudmqtt.com", "11957", "ayogkqnq", "_e4HiuI73ywB")
         mqtt.init()
 
+
         //Set content dimensions after content layout has loaded
         content_layout.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-            val contentCoordinates = IntArray(2)
-            mainImage.getLocationOnScreen(contentCoordinates)
-
-            val displayMetrics = DisplayMetrics()
-            windowManager.defaultDisplay.getMetrics(displayMetrics)
-            GestureParser.setScreenDimensions(displayMetrics.heightPixels, displayMetrics.widthPixels, contentCoordinates[1])
-
-            println("screen. height: ${displayMetrics.heightPixels}, width: ${displayMetrics.widthPixels}")
-            HoldsCanvas.init(GestureParser.getScreenDimensions())
+            InitializeUI()
         }
+    }
+
+    private fun InitializeUI() {
+        if (UIInitialized) return
+        UIInitialized = true
+
+        val contentCoordinates = IntArray(2)
+        mainImage.getLocationOnScreen(contentCoordinates)
+
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        GestureParser.setScreenDimensions(displayMetrics.heightPixels, displayMetrics.widthPixels, contentCoordinates[1])
+
+        println("screen. height: ${displayMetrics.heightPixels}, width: ${displayMetrics.widthPixels}")
+
+        HoldsCanvas.init(GestureParser.getScreenDimensions())
     }
 
     override fun onBackPressed() {
@@ -164,6 +173,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 canvasImage.visibility = View.VISIBLE
                 routeOneBtn.visibility = View.GONE
                 routeTwoBtn.visibility = View.GONE
+                HoldsCanvas.updateCanvas()
             }
             R.id.nav_canvas -> {
                 viewMode = VIEWMODE_GRID
@@ -171,6 +181,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 canvasImage.visibility = View.VISIBLE
                 routeOneBtn.visibility = View.GONE
                 routeTwoBtn.visibility = View.GONE
+                HoldsCanvas.updateCanvas()
             }
             R.id.nav_database -> {
                 viewMode = VIEWMODE_DATABASE

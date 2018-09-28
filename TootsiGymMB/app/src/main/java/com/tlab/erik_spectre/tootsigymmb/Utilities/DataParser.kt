@@ -34,15 +34,16 @@ object DataParser {
     }
 
     private fun parseRouteData(data: String) {
+        HoldsCanvas.clear(true)
         val routeData = data.split(";")
         for (hold in routeData[0].split(",")) {
-            HoldsCanvas.addHold(hold, "0,255,0")
+            HoldsCanvas.addHold(hold, "0,255,0", false)
         }
         for (hold in routeData[1].split(",")) {
-            HoldsCanvas.addHold(hold, "0,0,255")
+            HoldsCanvas.addHold(hold, "0,0,255", false)
         }
         for (hold in routeData[2].split(",")) {
-            HoldsCanvas.addHold(hold, "255,0,0")
+            HoldsCanvas.addHold(hold, "255,0,0", false)
         }
     }
 }
