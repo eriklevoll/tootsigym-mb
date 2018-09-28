@@ -6,10 +6,7 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
-import android.view.GestureDetector
-import android.view.Menu
-import android.view.MenuItem
-import android.view.MotionEvent
+import android.view.*
 import com.example.erik_spectre.tootsigymmb.R
 import com.example.erik_spectre.tootsigymmb.R.drawable.*
 import com.tlab.erik_spectre.tootsigymmb.Model.MQTT
@@ -26,10 +23,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private var ledColor = BLUE_COLOR
     private var actionBarMenu: Menu? = null
+    private var viewMode = VIEWMODE_GRID
 
     private val gestureListener =  object : GestureDetector.SimpleOnGestureListener() {
 
         override fun onSingleTapUp(e: MotionEvent?): Boolean {
+            if (viewMode == VIEWMODE_DATABASE) super.onSingleTapUp(e)
             val rc = GestureParser.onDown(e?.rawX, e?.rawY)
             if (rc == "") return super.onSingleTapUp(e)
 
@@ -43,6 +42,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+            if (viewMode == VIEWMODE_DATABASE) return super.onScroll(e1, e2, distanceX, distanceY)
             val x = e1?.x ?: 0f
             if (x / GestureParser.width < 0.1) return super.onScroll(e1, e2, distanceX, distanceY)
 
@@ -159,17 +159,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_grid -> {
-
+                viewMode = VIEWMODE_GRID
+                mainImage.visibility = View.VISIBLE
+                canvasImage.visibility = View.VISIBLE
+                routeOneBtn.visibility = View.GONE
+                routeTwoBtn.visibility = View.GONE
             }
             R.id.nav_canvas -> {
-
+                viewMode = VIEWMODE_GRID
+                mainImage.visibility = View.VISIBLE
+                canvasImage.visibility = View.VISIBLE
+                routeOneBtn.visibility = View.GONE
+                routeTwoBtn.visibility = View.GONE
             }
             R.id.nav_database -> {
-
+                viewMode = VIEWMODE_DATABASE
+                mainImage.visibility = View.INVISIBLE
+                canvasImage.visibility = View.INVISIBLE
+                routeOneBtn.visibility = View.VISIBLE
+                routeTwoBtn.visibility = View.VISIBLE
             }
         }
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    fun routeOneClick(view: View) {
+        mqtt.sendData(RandomGenerator.getRandomRoute())
+    }
+
+    fun routeTwoClick(view: View) {
+        mqtt.sendData("J1;G1,E1,D1,C1,B1;A1,A2,B2,C2,D2")
     }
 }

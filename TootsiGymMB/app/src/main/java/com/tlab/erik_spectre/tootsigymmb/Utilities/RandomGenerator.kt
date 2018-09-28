@@ -32,4 +32,38 @@ object RandomGenerator {
         val number = getRandomInt(1, 18)
         return "$letter$number"
     }
+
+    fun getRandomRoute() : String{
+        val r = Random()
+        var route = ""
+        var row = 1
+        //Starting holds
+        for (i in 1..getRandomInt(1,3)) {
+            val i = r.nextInt(11) + 'a'.toInt()
+            val letter = i.toChar().toUpperCase()
+            route += "$letter$row,"
+            row++
+        }
+        route = route.trimEnd(',')
+        route += ";"
+        //Main route holds
+        for (i in 1..getRandomInt(13,14)) {
+            val i = r.nextInt(11) + 'a'.toInt()
+            val letter = i.toChar().toUpperCase()
+            route += "$letter$row,"
+            row++
+        }
+        route = route.trimEnd(',')
+        route += ";"
+        //Top holds
+        while (row <= NUM_OF_ROWS) {
+            val i = r.nextInt(11) + 'a'.toInt()
+            val letter = i.toChar().toUpperCase()
+            route += "$letter$row,"
+            row++
+        }
+        route = route.trimEnd(',')
+
+        return route
+    }
 }

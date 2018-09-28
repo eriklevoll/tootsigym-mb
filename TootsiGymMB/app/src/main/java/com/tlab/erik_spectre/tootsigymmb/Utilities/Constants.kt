@@ -18,3 +18,6 @@ const val NO_COLOR      = "0,0,0"
 
 const val NUM_OF_ROWS   = 18
 const val NUM_OF_COLS   = 11
+
+const val VIEWMODE_GRID = 0
+const val VIEWMODE_DATABASE = 1
