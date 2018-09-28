@@ -45,5 +45,6 @@ object DataParser {
         for (hold in routeData[2].split(",")) {
             HoldsCanvas.addHold(hold, "255,0,0", false)
         }
+        HoldsCanvas.updateCanvas()
     }
 }

@@ -39,8 +39,8 @@ object RandomGenerator {
         var row = 1
         //Starting holds
         for (i in 1..getRandomInt(1,3)) {
-            val i = r.nextInt(11) + 'a'.toInt()
-            val letter = i.toChar().toUpperCase()
+            val j = r.nextInt(11) + 'a'.toInt()
+            val letter = j.toChar().toUpperCase()
             route += "$letter$row,"
             row++
         }
@@ -48,8 +48,8 @@ object RandomGenerator {
         route += ";"
         //Main route holds
         for (i in 1..getRandomInt(13,14)) {
-            val i = r.nextInt(11) + 'a'.toInt()
-            val letter = i.toChar().toUpperCase()
+            val j = r.nextInt(11) + 'a'.toInt()
+            val letter = j.toChar().toUpperCase()
             route += "$letter$row,"
             row++
         }
@@ -57,8 +57,8 @@ object RandomGenerator {
         route += ";"
         //Top holds
         while (row <= NUM_OF_ROWS) {
-            val i = r.nextInt(11) + 'a'.toInt()
-            val letter = i.toChar().toUpperCase()
+            val j = r.nextInt(11) + 'a'.toInt()
+            val letter = j.toChar().toUpperCase()
             route += "$letter$row,"
             row++
         }
