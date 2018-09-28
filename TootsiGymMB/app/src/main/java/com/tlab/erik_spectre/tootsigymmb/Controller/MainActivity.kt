@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if (drawerOpen) return super.onSingleTapUp(e)
 
             mqtt.sendData("$rc,$ledColor")
-            CanvasData.addHold(rc, ledColor)
+            HoldsCanvas.addHold(rc, ledColor)
 
             return super.onSingleTapUp(e)
         }
@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if (rc == "") return super.onScroll(e1, e2, distanceX, distanceY)
 
             mqtt.sendData("$rc,$ledColor")
-            CanvasData.addHold(rc, ledColor)
+            HoldsCanvas.addHold(rc, ledColor)
 
             return super.onScroll(e1, e2, distanceX, distanceY)
         }

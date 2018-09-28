@@ -1,7 +1,6 @@
 package com.tlab.erik_spectre.tootsigymmb.Model
 
 import android.content.Context
-import com.tlab.erik_spectre.tootsigymmb.Utilities.CanvasData
 import com.tlab.erik_spectre.tootsigymmb.Utilities.DataParser
 import com.tlab.erik_spectre.tootsigymmb.Utilities.HoldsCanvas
 import org.eclipse.paho.android.service.MqttAndroidClient
