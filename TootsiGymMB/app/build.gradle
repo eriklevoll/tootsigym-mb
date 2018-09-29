@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'kotlin-kapt'
+
 android {
     compileSdkVersion 27
     defaultConfig {
@@ -40,7 +42,10 @@ dependencies {
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
     implementation 'com.android.support:cardview-v7:27.1.1'
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.squareup.moshi:moshi-kotlin:1.7.0'
+    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.7.0'
+    implementation 'se.ansman.kotshi:api:1.0.5' // Use implementation if using Android
+    kapt 'se.ansman.kotshi:compiler:1.0.5'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

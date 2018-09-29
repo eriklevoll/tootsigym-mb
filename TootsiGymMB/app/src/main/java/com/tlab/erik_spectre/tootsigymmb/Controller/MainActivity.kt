@@ -29,7 +29,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val gestureListener =  object : GestureDetector.SimpleOnGestureListener() {
 
         override fun onSingleTapUp(e: MotionEvent?): Boolean {
-            DataParser.parseJson(application)
+            //DataParser.parseJson(application)
+            DataParser.loadJSONFromAsset(application)
             return super.onSingleTapUp(e)
             if (viewMode == VIEWMODE_DATABASE) super.onSingleTapUp(e)
             val rc = GestureParser.onDown(e?.rawX, e?.rawY)
@@ -83,11 +84,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mqtt = MQTT(this, "m20.cloudmqtt.com", "11957", "ayogkqnq", "_e4HiuI73ywB")
         mqtt.init()
 
-
         //Set content dimensions after content layout has loaded
         content_layout.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
             InitializeUI()
         }
+
+        RoutesData.init("routes.json", application)
     }
 
     private fun InitializeUI() {

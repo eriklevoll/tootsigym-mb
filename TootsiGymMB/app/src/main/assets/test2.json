@@ -1,0 +1,16 @@
+{
+  "hidden_card": {
+    "rank": "6",
+    "suit": "SPADES"
+  },
+  "visible_cards": [
+    {
+      "rank": "4",
+      "suit": "CLUBS"
+    },
+    {
+      "rank": "A",
+      "suit": "HEARTS"
+    }
+  ]
+}
