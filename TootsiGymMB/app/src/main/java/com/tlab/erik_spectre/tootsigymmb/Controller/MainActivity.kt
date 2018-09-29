@@ -29,6 +29,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val gestureListener =  object : GestureDetector.SimpleOnGestureListener() {
 
         override fun onSingleTapUp(e: MotionEvent?): Boolean {
+            DataParser.parseJson(application)
+            return super.onSingleTapUp(e)
             if (viewMode == VIEWMODE_DATABASE) super.onSingleTapUp(e)
             val rc = GestureParser.onDown(e?.rawX, e?.rawY)
             if (rc == "") return super.onSingleTapUp(e)
