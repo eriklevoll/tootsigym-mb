@@ -1,12 +1,6 @@
 package com.tlab.erik_spectre.tootsigymmb.Utilities
 
-import android.app.Application
-import com.squareup.moshi.*
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.tlab.erik_spectre.tootsigymmb.Model.*
-import okio.BufferedSource
-import org.json.JSONArray
-import org.json.JSONObject
 
 object DataParser {
 
@@ -56,29 +50,19 @@ object DataParser {
         HoldsCanvas.updateCanvas()
     }
 
-    fun loadJSONFromAsset(app: Application) {
-//        val file_name = "routes.json"
-//        val json_string = app.assets.open(file_name).bufferedReader().use {
-//            it.readText()
-//        }
-//        val moshi = Moshi.Builder()
-//                .add(KotlinJsonAdapterFactory())
-//                .build()
-//
-//
-//        val listType = Types.newParameterizedType(List::class.java, Route::class.java)
-//        val adapter: JsonAdapter<List<Route>> = moshi.adapter(listType)
-//        val result = adapter.fromJson(json_string)
+    fun getFilteredRoutes(grade: String = "V1"): List<Route>? {
+        val allRoutes = RoutesData.data
+        val filteredRoutes = allRoutes?.get(grade)
+        println("All $grade: $filteredRoutes")
 
-        val result = RoutesData.data
+        return filteredRoutes
+    }
 
-        println(result)
-        println("Total: ${result?.get(0)?.Total}")
-        println("Data: ${result?.get(0)?.Data?.get(0)}")
-        println("Id: ${result?.get(0)?.Data?.get(0)?.Id}")
-        println("Grade: ${result?.get(0)?.Data?.get(0)?.Grade}")
-        println("Grade: ${result?.get(0)?.Data?.get(0)?.Problem?.Grade}")
-        println("Move1: ${result?.get(0)?.Data?.get(0)?.Problem?.Moves?.get(0)?.Description}")
-
+    fun convertHoldTypeToColor(isStart: Boolean, isEnd: Boolean) : String{
+        return when {
+            isStart -> "0,255,0"
+            isEnd -> "255,0,0"
+            else -> return "0,0,255"
+        }
     }
 }

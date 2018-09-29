@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
 import android.view.*
+import android.widget.SeekBar
 import com.example.erik_spectre.tootsigymmb.R
 import com.example.erik_spectre.tootsigymmb.R.drawable.*
 import com.tlab.erik_spectre.tootsigymmb.Model.MQTT
@@ -16,7 +17,16 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener  {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener  {
+    override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+        GradeText.text = "V${p0?.progress}"
+    }
+
+    override fun onStartTrackingTouch(p0: SeekBar?) {
+    }
+
+    override fun onStopTrackingTouch(p0: SeekBar?) {
+    }
 
     private lateinit var mqtt: MQTT
     private lateinit var gestureDetector: GestureDetector
@@ -29,10 +39,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val gestureListener =  object : GestureDetector.SimpleOnGestureListener() {
 
         override fun onSingleTapUp(e: MotionEvent?): Boolean {
-            //DataParser.parseJson(application)
-            DataParser.loadJSONFromAsset(application)
-            return super.onSingleTapUp(e)
-            if (viewMode == VIEWMODE_DATABASE) super.onSingleTapUp(e)
+            if (viewMode == VIEWMODE_DATABASE) return super.onSingleTapUp(e)
+
             val rc = GestureParser.onDown(e?.rawX, e?.rawY)
             if (rc == "") return super.onSingleTapUp(e)
 
@@ -71,6 +79,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer_layout.setOnTouchListener { _, event ->
             gestureDetector.onTouchEvent(event)
         }
+
+        GradeSlider.setOnSeekBarChangeListener(this)
 
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -175,24 +185,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 viewMode = VIEWMODE_GRID
                 mainImage.visibility = View.VISIBLE
                 canvasImage.visibility = View.VISIBLE
-                routeOneBtn.visibility = View.GONE
-                routeTwoBtn.visibility = View.GONE
+                database_layout.visibility = View.GONE
                 HoldsCanvas.updateCanvas()
             }
             R.id.nav_canvas -> {
                 viewMode = VIEWMODE_GRID
                 mainImage.visibility = View.VISIBLE
                 canvasImage.visibility = View.VISIBLE
-                routeOneBtn.visibility = View.GONE
-                routeTwoBtn.visibility = View.GONE
+                database_layout.visibility = View.GONE
                 HoldsCanvas.updateCanvas()
             }
             R.id.nav_database -> {
                 viewMode = VIEWMODE_DATABASE
                 mainImage.visibility = View.INVISIBLE
                 canvasImage.visibility = View.INVISIBLE
-                routeOneBtn.visibility = View.VISIBLE
-                routeTwoBtn.visibility = View.VISIBLE
+                database_layout.visibility = View.VISIBLE
             }
         }
 
@@ -205,6 +212,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun routeTwoClick(view: View) {
-        mqtt.sendData("J1;G1,E1,D1,C1,B1;A1,A2,B2,C2,D2")
+        HoldsCanvas.clear(true)
+        val route = RandomGenerator.getRandomFromDB()
+        val data = HoldsCanvas.addRouteFromDB(route)
+        mqtt.sendData(data)
     }
 }

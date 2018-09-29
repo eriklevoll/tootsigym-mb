@@ -3,6 +3,7 @@ package com.tlab.erik_spectre.tootsigymmb.Utilities
 import android.annotation.SuppressLint
 import android.graphics.*
 import android.widget.ImageView
+import com.tlab.erik_spectre.tootsigymmb.Model.Route
 import com.tlab.erik_spectre.tootsigymmb.Utilities.GestureParser.height
 
 
@@ -79,6 +80,34 @@ object HoldsCanvas {
             GREEN_COLOR -> Color.GREEN
             else -> Color.BLUE
         }
+    }
+
+    fun addRouteFromDB(route: Route?): String {
+        var startHolds = ""
+        var midHolds = ""
+        var endHolds = ""
+
+        val moves = route?.Data?.get(0)?.Problem?.Moves
+        if (moves != null) {
+            for (move in moves) {
+                val rc = move.Description
+                val color = DataParser.convertHoldTypeToColor(move.IsStart, move.IsEnd)
+                addHold(rc, color, false)
+
+                when {
+                    move.IsStart -> startHolds += "$rc,"
+                    move.IsEnd -> endHolds += "$rc,"
+                    else -> midHolds += "$rc,"
+                }
+            }
+        }
+
+        startHolds = startHolds.trimEnd(',')
+        midHolds = midHolds.trimEnd(',')
+        endHolds = endHolds.trimEnd(',')
+
+        HoldsCanvas.updateCanvas()
+        return "$startHolds;$midHolds;$endHolds"
     }
 
     fun updateCanvas() {
