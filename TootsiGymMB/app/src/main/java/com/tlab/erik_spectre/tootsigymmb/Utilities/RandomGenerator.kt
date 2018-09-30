@@ -27,75 +27,90 @@ object RandomGenerator {
     }
 
     fun getRandomHoldRC() : String {
-        val r = Random()
-        val i = r.nextInt(11) + 'a'.toInt()
-        val letter = i.toChar().toUpperCase()
+        val letter = getRandomColumn()
         val number = getRandomInt(1, 18)
         return "$letter$number"
     }
 
-    fun getRandomRoute() : String{
-
-        fun getHolds(row: Int, to: Int): String {
-            val r = Random()
-            var route = ""
-            for (i in 0..getRandomInt(1, to-1)) {
-                val j = r.nextInt(11) + 'a'.toInt()
-                val letter = j.toChar().toUpperCase()
-
-                val skip = getRandomInt(0,1)
-                if (skip == 0) route += "$letter$row,"
-                //route += "$letter${i+row},"
-            }
-            return route
-        }
+    fun getRandomColumn(): Char {
         val r = Random()
-        var route = ""
-        var row = 1
-        var startHolds = ""
-        var startHoldsCount = 0
-        while (startHoldsCount == 0) {
-            startHolds = getHolds(1, 3)
-            startHoldsCount = startHolds.split(",").count()
-        }
-        row = startHoldsCount
-        //val startHolds = getHolds(1, 3)
-        //row = startHolds.split(",").count()
-        //if ()
-        //Starting holds
-//        for (i in 1..getRandomInt(1,3)) {
-//            val j = r.nextInt(11) + 'a'.toInt()
-//            val letter = j.toChar().toUpperCase()
-//
-//            val skip = getRandomInt(0,1)
-//            if (skip == 0) route += "$letter$row,"
-//            row++
-//        }
-        route = startHolds.trimEnd(',')
-        route += ";"
-        //Main route holds
-        for (i in 1..getRandomInt(13,14)) {
-            val j = r.nextInt(11) + 'a'.toInt()
-            val letter = j.toChar().toUpperCase()
+        val i = r.nextInt(11) + 'a'.toInt()
+        return i.toChar().toUpperCase()
+    }
 
-            val skip = getRandomInt(0,1)
-            if (skip == 0) route += "$letter$row,"
-            row++
-        }
-        route = route.trimEnd(',')
-        route += ";"
-        //Top holds
-        while (row <= NUM_OF_ROWS) {
-            val j = r.nextInt(11) + 'a'.toInt()
-            val letter = j.toChar().toUpperCase()
+    fun getRandomRows() : List<Int> {
+        val num = (2..17).random()
+        val shuffledList  = (1..18).toList().shuffled()
+        return shuffledList.subList(0,num).sorted()
+    }
 
-            val skip = getRandomInt(0,1)
-            if (skip == 0) route += "$letter$row,"
-            row++
-        }
-        route = route.trimEnd(',')
+    fun getRandomRoute() : String {
+        val rows = getRandomRows().toMutableList()
+        if (rows.size < 3) return getRandomRoute()
 
-        return route
+        val startHolds: List<Int>
+        val midHolds: List<Int>
+        val endHolds: List<Int>
+
+        when {
+            rows.size == 3 -> {
+                startHolds = rows.subList(0,1)
+                midHolds = rows.subList(1,2)
+                endHolds = rows.subList(2,3)
+            }
+            rows.size == 4 -> {
+                startHolds = rows.subList(0,1)
+                midHolds = rows.subList(1,3)
+                endHolds = rows.subList(3,4)
+            }
+            rows.size == 5 -> {
+                startHolds = rows.subList(0,1)
+                midHolds = rows.subList(1,4)
+                endHolds = rows.subList(4,5)
+            }
+            else -> {
+                val firstStartHold = getRandomInt(0,2)
+                val lastStartHold = getRandomInt(firstStartHold+1,3)
+                startHolds = rows.subList(firstStartHold, lastStartHold)
+
+                val firstEndHold = rows.size - getRandomInt(1,2)
+                val lastEndHold = getRandomInt(firstEndHold+1, rows.size)
+                if (firstEndHold <= lastStartHold) return getRandomRoute()
+
+                endHolds = rows.subList(firstEndHold, lastEndHold)
+
+                val firstMidHold = getRandomInt(lastStartHold+1, firstEndHold)
+                val lastMidHold = getRandomInt(firstMidHold, firstEndHold)
+                midHolds = rows.subList(firstMidHold, lastMidHold)
+            }
+        }
+
+        if (midHolds.isEmpty()) return getRandomRoute()
+        if (endHolds.max()!! < 16) return getRandomRoute()
+        if (startHolds.max()!! > 6) return getRandomRoute()
+
+        var startHoldsString = ""
+        for (row in startHolds) {
+            val letter = getRandomColumn()
+            startHoldsString += "$letter$row,"
+        }
+        startHoldsString = startHoldsString.trimEnd(',')
+
+        var midHoldsString = ""
+        for (row in midHolds) {
+            val letter = getRandomColumn()
+            midHoldsString += "$letter$row,"
+        }
+        midHoldsString = midHoldsString.trimEnd(',')
+
+        var endHoldsString = ""
+        for (row in endHolds) {
+            val letter = getRandomColumn()
+            endHoldsString += "$letter$row,"
+        }
+        endHoldsString = endHoldsString.trimEnd(',')
+
+        return "$startHoldsString;$midHoldsString;$endHoldsString"
     }
 
     fun getRandomGrade(): String {
