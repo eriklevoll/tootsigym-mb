@@ -22,11 +22,13 @@ object HoldsCanvas {
 
     fun addHold(hold: String, color: String, update: Boolean = true) {
         val c = HoldsCanvas.convertColorString(color)
+        if (holdsData[hold] == c) return
         holdsData[hold] = c
         if (update) HoldsCanvas.updateCanvas()
     }
 
     fun removeHold(hold: String) {
+        if (holdsData[hold] == Color.TRANSPARENT)  return
         holdsData.remove(hold)
         HoldsCanvas.updateCanvas()
     }

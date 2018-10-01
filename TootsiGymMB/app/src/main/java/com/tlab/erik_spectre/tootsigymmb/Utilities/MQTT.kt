@@ -81,7 +81,7 @@ object MQTT {
 
     private fun publishToTopic(message: String) {
         try {
-            val publish = client.publish(MQTT_PUBLISH_TOPIC, message.toByteArray(), 1, false)
+            client.publish(MQTT_PUBLISH_TOPIC, message.toByteArray(), 1, false)
             //println("Published: ${publish.message}")
         } catch (e: MqttException) {
             println(e.message)
