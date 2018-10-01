@@ -12,15 +12,14 @@ android {
         applicationId "com.tlab.erik_spectre.tootsigymmb"
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 12
-        versionName "1.6.1"
+        versionCode 13
+        versionName "1.6.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
-            shrinkResources true
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -48,7 +47,7 @@ dependencies {
     implementation 'se.ansman.kotshi:api:1.0.5'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    //androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
 
 kotlin {
