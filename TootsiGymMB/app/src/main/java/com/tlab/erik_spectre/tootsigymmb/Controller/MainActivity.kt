@@ -10,7 +10,7 @@ import android.view.*
 import android.widget.SeekBar
 import com.example.erik_spectre.tootsigymmb.R
 import com.example.erik_spectre.tootsigymmb.R.drawable.*
-import com.tlab.erik_spectre.tootsigymmb.Model.MQTT
+import com.tlab.erik_spectre.tootsigymmb.Utilities.MQTT
 import com.tlab.erik_spectre.tootsigymmb.Utilities.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
@@ -28,7 +28,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onStopTrackingTouch(p0: SeekBar?) {
     }
 
-    private lateinit var mqtt: MQTT
     private lateinit var gestureDetector: GestureDetector
 
     private var ledColor = BLUE_COLOR
@@ -47,7 +46,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val drawerOpen = drawer_layout.isDrawerOpen(GravityCompat.START)
             if (drawerOpen) return super.onSingleTapUp(e)
 
-            mqtt.sendData("$rc,$ledColor")
+            MQTT.sendData("$rc,$ledColor")
             HoldsCanvas.addHold(rc, ledColor)
 
             return super.onSingleTapUp(e)
@@ -61,7 +60,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val rc = GestureParser.onDown(e2?.rawX, e2?.rawY, true)
             if (rc == "") return super.onScroll(e1, e2, distanceX, distanceY)
 
-            mqtt.sendData("$rc,$ledColor")
+            MQTT.sendData("$rc,$ledColor")
             HoldsCanvas.addHold(rc, ledColor)
 
             return super.onScroll(e1, e2, distanceX, distanceY)
@@ -70,7 +69,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        println("OnCreate")
         setContentView(R.layout.activity_main)
 
         setSupportActionBar(toolbar)
@@ -92,8 +90,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         HoldsCanvas.setCanvasImage(canvasImage)
 
-        mqtt = MQTT(this, "m20.cloudmqtt.com", "11957", "ayogkqnq", "_e4HiuI73ywB")
-        mqtt.init()
+        MQTT.init(this, "m20.cloudmqtt.com", "11957", "ayogkqnq", "_e4HiuI73ywB")
 
         //Set content dimensions after content layout has loaded
         content_layout.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
@@ -105,8 +102,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
-        println("onResume")
-        if (mqtt.initialized) mqtt.checkConnection()
+        if (MQTT.initialized) MQTT.checkConnection()
     }
 
     private fun InitializeUI() {
@@ -143,12 +139,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return when (item.itemId) {
             R.id.action_favorite -> {
                 HoldsCanvas.clear()
-                mqtt.sendData("-1,0,0,0")
+                MQTT.sendData("-1,0,0,0")
                 true
             }
             R.id.action_glow -> {
                 val data = RandomGenerator.getRandomLED()
-                mqtt.sendData("-1,$data")
+                MQTT.sendData("-1,$data")
                 true
             }
             R.id.action_red -> {
@@ -215,13 +211,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun routeOneClick(view: View) {
-        mqtt.sendData(RandomGenerator.getRandomRoute())
+        MQTT.sendData(RandomGenerator.getRandomRoute())
     }
 
     fun routeTwoClick(view: View) {
         HoldsCanvas.clear(true)
         val route = RandomGenerator.getRandomFromDB()
         val data = HoldsCanvas.addRouteFromDB(route)
-        mqtt.sendData(data)
+        MQTT.sendData(data)
     }
 }

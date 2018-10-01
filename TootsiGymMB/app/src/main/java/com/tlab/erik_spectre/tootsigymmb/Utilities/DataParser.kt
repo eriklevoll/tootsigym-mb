@@ -51,11 +51,7 @@ object DataParser {
     }
 
     fun getFilteredRoutes(grade: String = "V1"): List<Route>? {
-        val allRoutes = RoutesData.data
-        val filteredRoutes = allRoutes?.get(grade)
-        println("All $grade: $filteredRoutes")
-
-        return filteredRoutes
+        return RoutesData.data?.get(grade)
     }
 
     fun convertHoldTypeToColor(isStart: Boolean, isEnd: Boolean) : String{

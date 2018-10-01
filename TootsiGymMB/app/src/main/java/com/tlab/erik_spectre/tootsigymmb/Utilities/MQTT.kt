@@ -1,41 +1,39 @@
-package com.tlab.erik_spectre.tootsigymmb.Model
+package com.tlab.erik_spectre.tootsigymmb.Utilities
 
+import android.annotation.SuppressLint
 import android.content.Context
-import com.tlab.erik_spectre.tootsigymmb.Utilities.DataParser
-import com.tlab.erik_spectre.tootsigymmb.Utilities.HoldsCanvas
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import java.util.*
 import kotlin.concurrent.schedule
 
-class MQTT(private val context: Context,
-           private val address: String,
-           private val port: String,
-           private val username: String,
-           private val password: String) {
+@SuppressLint("StaticFieldLeak")
+object MQTT {
 
-    //private val clientId = MqttClient.generateClientId()
-
-    private lateinit var client: MqttAndroidClient
-    private lateinit var connectionOptions: MqttConnectOptions
+    lateinit var client: MqttAndroidClient
+    lateinit var connectionOptions: MqttConnectOptions
 
     private val mqttTimer = Timer("mqtt", true)
 
     var initialized = false
 
-    fun init() {
+    fun init(context: Context, address: String, port: String, username: String, password: String) {
+
         client = MqttAndroidClient(context, "tcp://$address:$port", MqttClient.generateClientId())
         client.setCallback(MQTTConnectionCallback)
         connectionOptions = MqttConnectOptions()
         connectionOptions.userName = username
-        //connectionOptions.isAutomaticReconnect = true
+        connectionOptions.isAutomaticReconnect = true
         connectionOptions.password = password.toCharArray()
+        initialized = true
+
         startConnection()
     }
 
     private object MQTTConnectionCallback: MqttCallbackExtended {
         override fun connectComplete(b: Boolean, s: String) {
             println("Connect complete, $s")
+            subscribeToTopic()
         }
 
         override fun connectionLost(throwable: Throwable) {
@@ -44,18 +42,13 @@ class MQTT(private val context: Context,
 
         @Throws(Exception::class)
         override fun messageArrived(topic: String, mqttMessage: MqttMessage) {
-            println("messageArrived, $mqttMessage")
+            //println("messageArrived, $mqttMessage")
             DataParser.parseMQTTResponseData(mqttMessage.toString())
         }
 
         override fun deliveryComplete(iMqttDeliveryToken: IMqttDeliveryToken) {
-            println("deliveryComplete")
+            //println("deliveryComplete")
         }
-    }
-
-    fun checkConnection() {
-        println("Connected: ${client.isConnected}")
-        if (!client.isConnected) reconnect()
     }
 
     private fun startConnection()
@@ -65,8 +58,6 @@ class MQTT(private val context: Context,
             token.actionCallback = object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken) {
                     println("onSuccess")
-                    subscribeToTopic()
-                    initialized = true
                     }
 
                 override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -80,7 +71,7 @@ class MQTT(private val context: Context,
 
     private fun subscribeToTopic() {
         try {
-            client.subscribe("moon_resp", 0)
+            client.subscribe(MQTT_SUBSCRIBE_TOPIC, 0)
             println("Success subscribe")
         } catch (e: MqttException) {
             println("Failed subscribe")
@@ -90,8 +81,8 @@ class MQTT(private val context: Context,
 
     private fun publishToTopic(message: String) {
         try {
-            val publish = client.publish("moon", message.toByteArray(), 1, false)
-            println("Published: ${publish.message}")
+            val publish = client.publish(MQTT_PUBLISH_TOPIC, message.toByteArray(), 1, false)
+            //println("Published: ${publish.message}")
         } catch (e: MqttException) {
             println(e.message)
         }
@@ -100,6 +91,10 @@ class MQTT(private val context: Context,
     fun sendData(data: String) {
         checkConnection()
         publishToTopic(data)
+    }
+
+    fun checkConnection() {
+        if (!client.isConnected) reconnect()
     }
 
     private fun reconnect() {
