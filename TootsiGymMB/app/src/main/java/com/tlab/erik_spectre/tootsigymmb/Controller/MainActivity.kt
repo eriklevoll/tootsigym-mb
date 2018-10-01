@@ -70,6 +70,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        println("OnCreate")
         setContentView(R.layout.activity_main)
 
         setSupportActionBar(toolbar)
@@ -100,6 +101,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         RoutesData.init("routes.json", application)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        println("onResume")
+        if (mqtt.initialized) mqtt.checkConnection()
     }
 
     private fun InitializeUI() {

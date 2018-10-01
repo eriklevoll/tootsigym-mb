@@ -5,6 +5,8 @@ import com.tlab.erik_spectre.tootsigymmb.Utilities.DataParser
 import com.tlab.erik_spectre.tootsigymmb.Utilities.HoldsCanvas
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
+import java.util.*
+import kotlin.concurrent.schedule
 
 class MQTT(private val context: Context,
            private val address: String,
@@ -12,16 +14,21 @@ class MQTT(private val context: Context,
            private val username: String,
            private val password: String) {
 
-    val clientId = MqttClient.generateClientId()
+    //private val clientId = MqttClient.generateClientId()
 
-    lateinit var client: MqttAndroidClient
-    lateinit var connectionOptions: MqttConnectOptions
+    private lateinit var client: MqttAndroidClient
+    private lateinit var connectionOptions: MqttConnectOptions
+
+    private val mqttTimer = Timer("mqtt", true)
+
+    var initialized = false
 
     fun init() {
-        client = MqttAndroidClient(context, "tcp://$address:$port", clientId)
+        client = MqttAndroidClient(context, "tcp://$address:$port", MqttClient.generateClientId())
         client.setCallback(MQTTConnectionCallback)
         connectionOptions = MqttConnectOptions()
         connectionOptions.userName = username
+        //connectionOptions.isAutomaticReconnect = true
         connectionOptions.password = password.toCharArray()
         startConnection()
     }
@@ -46,6 +53,11 @@ class MQTT(private val context: Context,
         }
     }
 
+    fun checkConnection() {
+        println("Connected: ${client.isConnected}")
+        if (!client.isConnected) reconnect()
+    }
+
     private fun startConnection()
     {
         try {
@@ -54,6 +66,7 @@ class MQTT(private val context: Context,
                 override fun onSuccess(asyncActionToken: IMqttToken) {
                     println("onSuccess")
                     subscribeToTopic()
+                    initialized = true
                     }
 
                 override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -69,7 +82,6 @@ class MQTT(private val context: Context,
         try {
             client.subscribe("moon_resp", 0)
             println("Success subscribe")
-            publishToTopic("Connected")
         } catch (e: MqttException) {
             println("Failed subscribe")
         }
@@ -85,7 +97,25 @@ class MQTT(private val context: Context,
         }
     }
 
-    public fun sendData(data: String) {
+    fun sendData(data: String) {
+        checkConnection()
         publishToTopic(data)
+    }
+
+    private fun reconnect() {
+        startConnection()
+        waitForReconnect()
+    }
+
+    private fun waitForReconnect(counter: Int = 0) {
+        if (client.isConnected) {
+            println ("Reconnected in ${counter*5} ms")
+        } else {
+            mqttTimer.schedule(5) {
+                if (counter < 400) waitForReconnect(counter + 1)
+            }
+        }
+
+        if (counter >= 400) println("Failed to reconnect")
     }
 }
