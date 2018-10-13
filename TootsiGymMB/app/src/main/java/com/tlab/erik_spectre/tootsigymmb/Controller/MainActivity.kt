@@ -105,6 +105,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (MQTT.initialized) MQTT.checkConnection()
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            val contentCoordinates = IntArray(2)
+            mainImage.getLocationOnScreen(contentCoordinates)
+            GestureParser.height = mainImage.height + contentCoordinates[1]
+            println("new height: ${mainImage.height + contentCoordinates[1]}")
+        }
+    }
+
     private fun InitializeUI() {
         if (UIInitialized) return
         UIInitialized = true
