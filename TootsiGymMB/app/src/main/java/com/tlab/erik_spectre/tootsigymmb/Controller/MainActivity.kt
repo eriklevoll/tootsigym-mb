@@ -1,5 +1,6 @@
 package com.tlab.erik_spectre.tootsigymmb.Controller
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -98,11 +99,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         RoutesData.init("routes.json", application)
+
+        HoldsCanvas.updateCanvas()
     }
 
     override fun onResume() {
         super.onResume()
         if (MQTT.initialized) MQTT.checkConnection()
+
+        println("OnResume")
+
+        HoldsCanvas.updateCanvas()
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        println("onStart")
+
+        HoldsCanvas.updateCanvas()
+
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+
+        println("Config changed")
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
