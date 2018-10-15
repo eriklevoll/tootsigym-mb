@@ -106,26 +106,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onResume() {
         super.onResume()
         if (MQTT.initialized) MQTT.checkConnection()
-
-        println("OnResume")
-
-        HoldsCanvas.updateCanvas()
-
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        println("onStart")
-
-        HoldsCanvas.updateCanvas()
-
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration?) {
-        super.onConfigurationChanged(newConfig)
-
-        println("Config changed")
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
