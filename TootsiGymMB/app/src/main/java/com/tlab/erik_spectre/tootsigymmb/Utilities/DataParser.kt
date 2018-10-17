@@ -39,12 +39,15 @@ object DataParser {
         HoldsCanvas.clear(true)
         val routeData = data.split(";")
         for (hold in routeData[0].split(",")) {
+            if (routeData[0].isEmpty()) break
             HoldsCanvas.addHold(hold, "0,255,0", false)
         }
         for (hold in routeData[1].split(",")) {
+            if (routeData[1].isEmpty()) break
             HoldsCanvas.addHold(hold, "0,0,255", false)
         }
         for (hold in routeData[2].split(",")) {
+            if (routeData[2].isEmpty()) break
             HoldsCanvas.addHold(hold, "255,0,0", false)
         }
         HoldsCanvas.updateCanvas()

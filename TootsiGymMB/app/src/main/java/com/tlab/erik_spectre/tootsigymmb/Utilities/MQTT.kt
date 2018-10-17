@@ -34,6 +34,7 @@ object MQTT {
         override fun connectComplete(b: Boolean, s: String) {
             println("Connect complete, $s")
             subscribeToTopic()
+            sendData("#status")
         }
 
         override fun connectionLost(throwable: Throwable) {
@@ -83,7 +84,7 @@ object MQTT {
         try {
             client.publish(MQTT_PUBLISH_TOPIC, message.toByteArray(), 1, false)
             //println("Published: ${publish.message}")
-        } catch (e: MqttException) {
+        } catch (e: java.lang.Exception) {
             println(e.message)
         }
     }

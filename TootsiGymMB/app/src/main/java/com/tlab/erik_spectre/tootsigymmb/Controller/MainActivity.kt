@@ -98,14 +98,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             InitializeUI()
         }
 
-        RoutesData.init("routes.json", application)
+        RoutesData.init("routes2.json", application)
 
         HoldsCanvas.updateCanvas()
     }
 
     override fun onResume() {
         super.onResume()
-        if (MQTT.initialized) MQTT.checkConnection()
+        if (MQTT.initialized) {
+            MQTT.checkConnection()
+            MQTT.sendData("#status")
+        }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -157,7 +160,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.action_glow -> {
                 val data = RandomGenerator.getRandomLED()
-                MQTT.sendData("-1,$data")
+                //MQTT.sendData("-1,$data")
+                MQTT.sendData("#status")
                 true
             }
             R.id.action_red -> {
