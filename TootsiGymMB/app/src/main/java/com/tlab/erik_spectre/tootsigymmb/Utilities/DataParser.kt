@@ -53,8 +53,10 @@ object DataParser {
         HoldsCanvas.updateCanvas()
     }
 
-    fun getFilteredRoutes(grade: String = "V1"): List<Route>? {
-        return RoutesData.data?.get(grade)
+    fun getFilteredRoutes(grade: String? = "V1"): List<Route>? {
+        val data = RoutesData.data?.get(grade)
+        return if (data == null) listOf<Route>()
+        else data
     }
 
     fun convertHoldTypeToColor(isStart: Boolean, isEnd: Boolean) : String{

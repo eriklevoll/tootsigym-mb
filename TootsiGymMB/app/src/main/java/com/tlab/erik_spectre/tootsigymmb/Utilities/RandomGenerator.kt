@@ -117,10 +117,26 @@ object RandomGenerator {
         return "V${getRandomInt(1,14)}"
     }
 
-    fun getRandomFromDB(): Route? {
-        val grade = getRandomGrade()
-        val routes = DataParser.getFilteredRoutes(grade)
-        val index = routes?.size?.let { getRandomInt(0, it-1) } ?: 0
-        return routes?.get(index)
+    fun getRandomFromDB(vGrade: String): Route? {
+        //val grade = getRandomGrade()
+        val fontGrades = GradeMapping[vGrade]
+        val routes1 = DataParser.getFilteredRoutes(fontGrades?.elementAt(0))
+
+        val joinedList: List<Route>?
+        if (fontGrades?.count() == 1) {
+            joinedList = routes1
+        } else if (fontGrades?.count() == 2) {
+            val routes2 = DataParser.getFilteredRoutes(fontGrades.elementAt(1))
+            if (routes1 == null || routes2 == null) return null
+            joinedList = routes1 + routes2
+        } else {
+            return null
+        }
+
+        if (joinedList == null) return null
+        if (joinedList.isEmpty()) return null
+
+        val index = getRandomInt(0, joinedList.size -1)
+        return joinedList[index]
     }
 }

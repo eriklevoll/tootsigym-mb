@@ -2,28 +2,17 @@ package com.tlab.erik_spectre.tootsigymmb.Model
 
 import se.ansman.kotshi.JsonSerializable
 
-
 @JsonSerializable
-class Person(val id: Long, val age: Int = -1)
+class Route(val Data: RouteData)
 
-@JsonSerializable
-class Route(val Data: List<RouteData>, val Total: Int)
-
-class RouteData(val Problem: ProblemData) {
-    var Id = 0
-    var Attempts = 0
-    var Grade = ""
-    var NumberOfTries = ""
-    var Rating = 0
-    var IsSuggestedBenchmark = false
-    var User = UserData()
-}
-
-class ProblemData(val Moves: List<Move>) {
-    var Grade = ""
+class RouteData(val Moves: List<Move>, val Setter: SetterData) {
     var Name = ""
+    var Repeats = 0
+    var Grade = ""
+    var Rating = 0
+    var UserRating = 0
+    var IsBenchmark = false
 }
 
-class UserData()
-
+class SetterData(val Firstname: String, val Lastname: String)
 class Move(val Description: String, val IsStart: Boolean, val IsEnd: Boolean)

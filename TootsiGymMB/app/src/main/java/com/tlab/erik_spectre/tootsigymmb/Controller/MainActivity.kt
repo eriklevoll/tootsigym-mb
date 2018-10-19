@@ -1,6 +1,7 @@
 package com.tlab.erik_spectre.tootsigymmb.Controller
 
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -11,6 +12,7 @@ import android.view.*
 import android.widget.SeekBar
 import com.example.erik_spectre.tootsigymmb.R
 import com.example.erik_spectre.tootsigymmb.R.drawable.*
+import com.tlab.erik_spectre.tootsigymmb.Model.Route
 import com.tlab.erik_spectre.tootsigymmb.Utilities.MQTT
 import com.tlab.erik_spectre.tootsigymmb.Utilities.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -20,7 +22,11 @@ import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener  {
     override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-        GradeText.text = "V${p0?.progress}"
+        val vGrade = "V${p0?.progress}"
+        val fontGrade = GradeMapping[vGrade]
+
+        GradeTopText.text = vGrade
+        GradeBottomText.text = fontGrade?.joinToString(" / ")
     }
 
     override fun onStartTrackingTouch(p0: SeekBar?) {
@@ -98,7 +104,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             InitializeUI()
         }
 
-        RoutesData.init("routes2.json", application)
+        RoutesData.init("routes.json", application)
 
         HoldsCanvas.updateCanvas()
     }
@@ -160,8 +166,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.action_glow -> {
                 val data = RandomGenerator.getRandomLED()
-                //MQTT.sendData("-1,$data")
-                MQTT.sendData("#status")
+                MQTT.sendData("-1,$data")
                 true
             }
             R.id.action_red -> {
@@ -206,6 +211,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 mainImage.visibility = View.VISIBLE
                 canvasImage.visibility = View.VISIBLE
                 database_layout.visibility = View.GONE
+                content_layout.setBackgroundResource(R.color.MBYellow)
                 HoldsCanvas.updateCanvas()
             }
             R.id.nav_canvas -> {
@@ -213,6 +219,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 mainImage.visibility = View.VISIBLE
                 canvasImage.visibility = View.VISIBLE
                 database_layout.visibility = View.GONE
+                content_layout.setBackgroundResource(R.color.MBYellow)
                 HoldsCanvas.updateCanvas()
             }
             R.id.nav_database -> {
@@ -220,6 +227,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 mainImage.visibility = View.INVISIBLE
                 canvasImage.visibility = View.INVISIBLE
                 database_layout.visibility = View.VISIBLE
+                content_layout.setBackgroundColor(Color.WHITE)
             }
         }
 
@@ -233,8 +241,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun routeTwoClick(view: View) {
         HoldsCanvas.clear(true)
-        val route = RandomGenerator.getRandomFromDB()
+        //val grade = "V${GradeSlider.progress}"
+        val route = RandomGenerator.getRandomFromDB("V${GradeSlider.progress}")
+        setRouteDescription(route)
         val data = HoldsCanvas.addRouteFromDB(route)
         MQTT.sendData(data)
+    }
+
+    fun setRouteDescription(route: Route?) {
+        val routeData = route?.Data
+        RouteNameText.text = routeData?.Name
+        RouteGradeText.text = routeData?.Grade
+        RouteIsBenchmarkText.text = "Is Benchmark: ${routeData?.IsBenchmark}"
+        RouteSetterName.text = "${routeData?.Setter?.Firstname} ${routeData?.Setter?.Lastname}"
+        RouteRatingText.text = "Rating: ${routeData?.Rating}"
+        RouteUserRatingText.text = "User Rating: ${routeData?.UserRating}"
+        RouteRepeatsText.text = "Repeats: ${routeData?.Repeats}"
     }
 }

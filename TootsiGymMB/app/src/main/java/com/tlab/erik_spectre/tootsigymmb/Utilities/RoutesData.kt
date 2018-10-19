@@ -19,6 +19,6 @@ object RoutesData {
         val adapter: JsonAdapter<List<Route>> = moshi.adapter(listType)
 
         val ungroupedData = adapter.fromJson(jsonString)
-        data = ungroupedData?.groupBy { it.Data[0].Grade }
+        data = ungroupedData?.groupBy { it.Data.Grade }
     }
 }

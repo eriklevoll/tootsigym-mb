@@ -89,7 +89,7 @@ object HoldsCanvas {
         var midHolds = ""
         var endHolds = ""
 
-        val moves = route?.Data?.get(0)?.Problem?.Moves
+        val moves = route?.Data?.Moves
         if (moves != null) {
             for (move in moves) {
                 val rc = move.Description
