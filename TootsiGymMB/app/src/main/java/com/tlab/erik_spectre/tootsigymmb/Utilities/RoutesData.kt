@@ -5,11 +5,6 @@ import android.app.Application
 import android.content.Context
 import android.widget.Toast
 import com.google.gson.GsonBuilder
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.JsonReader
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.tlab.erik_spectre.tootsigymmb.Controller.MainActivity
 import com.tlab.erik_spectre.tootsigymmb.Model.Route
 import io.reactivex.Observable
@@ -22,41 +17,19 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
-import se.ansman.kotshi.KotshiJsonAdapterFactory
 import java.io.*
 
 
 object RoutesData {
     var data: Map<String, List<Route>?>? = null
     var data2: List<Route>? = null
-
-    fun init(fileName: String, app: Application) {
-        val jsonString = app.assets.open(fileName).bufferedReader().use { it.readText() }
-
-        val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
-
-        val listType = Types.newParameterizedType(List::class.java, Route::class.java)
-        val adapter: JsonAdapter<List<Route>> = moshi.adapter(listType)
-
-        val ungroupedData = adapter.fromJson(jsonString)
-        data = ungroupedData?.groupBy { it.Data.Grade }
-    }
-
-    fun initString(strData: String) {
-        val jsonString = strData
-
-        val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
-        //val moshi = Moshi.Builder().add(KotshiJsonAdapterFactory()).build()
-
-        val listType = Types.newParameterizedType(List::class.java, Route::class.java)
-        val adapter: JsonAdapter<List<Route>> = moshi.adapter(listType)
-
-        //val j = adapter.fromJson(strData)
-
-        val ungroupedData = adapter.fromJson(jsonString)
-        data = ungroupedData?.groupBy { it.Data.Grade }
-        //data = j?.groupBy { it.Data.Grade }
-    }
+    var RouteFilters: HashMap<String, Any> = hashMapOf(
+            "Grade" to hashSetOf("6B", "6B+"),
+            "Rating" to 0,
+            "UserRating" to 0,
+            "Repeats" to 0,
+            "IsBenchmark" to true
+    )
 
     fun readRoutesFromInternal(activity: MainActivity) {
         activity.setToast("Reading routes")
@@ -164,6 +137,25 @@ object RoutesData {
                 }
             }
         }
+    }
+
+    fun getFilteredList() : List<Route>? {
+        val newList = RoutesData.data2?.filter { RoutesData.applyRoutesFilter(it) }
+
+        return if (newList?.count() == 0) null
+        else newList
+    }
+
+    fun applyRoutesFilter(route: Route) : Boolean {
+        val gradeList = RouteFilters["Grade"] as HashSet<String>
+        when {
+            !gradeList.contains(route.Data.Grade) -> return false
+            route.Data.IsBenchmark != RouteFilters["IsBenchmark"] as Boolean -> return false
+            route.Data.UserRating < RouteFilters["UserRating"] as Int -> return false
+            route.Data.Rating < RouteFilters["Rating"] as Int -> return false
+            route.Data.Repeats < RouteFilters["Repeats"] as Int -> return false
+        }
+        return true
     }
 }
 

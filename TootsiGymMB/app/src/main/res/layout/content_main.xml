@@ -45,66 +45,19 @@
         android:id="@+id/database_layout">
 
         <Button
-            android:id="@+id/routeOneBtn"
+            android:id="@+id/routeTwoBtn"
             android:layout_width="0dp"
-            android:layout_height="47dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:onClick="routeOneClick"
-            android:text="Get Random Route"
+            android:onClick="routeTwoClick"
+            android:text="Get Random Route (DB)"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <Button
-        android:id="@+id/routeTwoBtn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:onClick="routeTwoClick"
-        android:text="Get Random Route (DB)"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/routeOneBtn" />
-
-        <Button
-            android:id="@+id/route3Btn"
-            android:layout_width="0dp"
-            android:visibility="gone"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:onClick="setDownloadedClick"
-            android:text="Read file"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/GradeBottomText" />
-
-        <Button
-            android:id="@+id/route4Btn"
-            android:visibility="gone"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:onClick="doSthClick"
-            android:text="Download file"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/route3Btn" />
 
         <SeekBar
             android:id="@+id/GradeSlider"
@@ -151,19 +104,84 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/GradeSlider" />
 
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/benchmarkToggleSwitch"
+            android:layout_width="136dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="16dp"
+            android:onClick="benchmarkToggle"
+            android:checked="true"
+            android:text="Is Benchmark"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/GradeBottomText" />
+
+        <RatingBar
+            android:id="@+id/MainRatingBar"
+            style="@style/Widget.AppCompat.RatingBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:rating="0"
+            android:isIndicator="false"
+            android:stepSize="0.5"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/RatingText"
+            app:layout_constraintStart_toEndOf="@+id/RatingText"
+            app:layout_constraintTop_toTopOf="@+id/RatingText" />
+
+        <TextView
+        android:id="@+id/RatingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Rating"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/benchmarkToggleSwitch" />
+
+        <RatingBar
+            android:id="@+id/UserRatingBar"
+            style="@style/Widget.AppCompat.RatingBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:rating="0"
+            android:stepSize="0.5"
+            android:isIndicator="false"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/UserRatingText"
+            app:layout_constraintStart_toEndOf="@+id/UserRatingText"
+            app:layout_constraintTop_toTopOf="@+id/UserRatingText" />
+
+        <TextView
+            android:id="@+id/UserRatingText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:text="User Rating"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/RatingText" />
+
         <TextView
             android:id="@+id/RouteNameText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="36dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:text=""
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/GradeSlider" />
+            app:layout_constraintTop_toBottomOf="@+id/UserRatingBar" />
 
         <TextView
             android:id="@+id/RouteGradeText"
@@ -176,7 +194,6 @@
             android:layout_marginRight="8dp"
             android:text=""
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.503"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/RouteNameText" />
 
@@ -268,6 +285,18 @@
             app:layout_constraintHorizontal_bias="0.502"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/RouteRepeatsText" />
+
+
+        <TextView
+            android:id="@+id/FilterResultsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginBottom="8dp"
+            android:text=""
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
     </android.support.constraint.ConstraintLayout>
 
 

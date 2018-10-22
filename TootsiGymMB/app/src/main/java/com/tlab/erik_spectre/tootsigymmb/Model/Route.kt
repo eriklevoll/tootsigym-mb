@@ -1,13 +1,12 @@
 package com.tlab.erik_spectre.tootsigymmb.Model
 
-import se.ansman.kotshi.JsonSerializable
 import java.io.Serializable
 
 
-@JsonSerializable
+//@JsonSerializable
 data class Route(val Data: RouteData) : Serializable
 
-@JsonSerializable
+//@JsonSerializable
 class RouteData(val Moves: List<Move>, val Setter: SetterData) : Serializable {
     var Name = ""
     var Repeats = 0
@@ -16,8 +15,8 @@ class RouteData(val Moves: List<Move>, val Setter: SetterData) : Serializable {
     var UserRating = 0
     var IsBenchmark = false
 }
-@JsonSerializable
+//@JsonSerializable
 class SetterData(val Firstname: String, val Lastname: String) : Serializable
 
-@JsonSerializable
+//@JsonSerializable
 class Move(val Description: String, val IsStart: Boolean, val IsEnd: Boolean) : Serializable

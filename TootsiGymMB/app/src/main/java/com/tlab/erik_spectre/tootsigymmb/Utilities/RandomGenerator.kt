@@ -117,17 +117,24 @@ object RandomGenerator {
         return "V${getRandomInt(1,14)}"
     }
 
-    fun getRandomFromDB(vGrade: String): Route? {
+    fun getRandomFromDB(routeList: List<Route>?): Route? {
 
-        val max = RoutesData.data2?.count() ?: 1
+//        val max = RoutesData.data2?.count() ?: 1
+//        val index = getRandomInt(0, max-1)
+
+        //val fontGrades = GradeMapping[vGrade]
+
+        //val newList = RoutesData.data2?.filter { RoutesData.applyRoutesFilter(it) }
+
+        if (routeList?.count() == 0) return null
+
+        val max = routeList?.count() ?: 1
         val index = getRandomInt(0, max-1)
 
-        println("Num of routes: $max")
-
-        return RoutesData.data2?.get(index)
+        return routeList?.get(index)
 
         //val grade = getRandomGrade()
-//        val fontGrades = GradeMapping[vGrade]
+//
 //        val routes1 = DataParser.getFilteredRoutes(fontGrades?.elementAt(0))
 //
 //        val joinedList: List<Route>?

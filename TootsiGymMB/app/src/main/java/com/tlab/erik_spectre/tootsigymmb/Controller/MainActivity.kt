@@ -1,11 +1,6 @@
 package com.tlab.erik_spectre.tootsigymmb.Controller
 
-import android.app.AlertDialog
-import android.content.Context
-import android.content.DialogInterface
-import android.content.res.Configuration
 import android.graphics.Color
-import android.os.AsyncTask
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -13,7 +8,6 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
 import android.view.*
-import android.widget.ListView
 import android.widget.SeekBar
 import android.widget.Toast
 import com.example.erik_spectre.tootsigymmb.R
@@ -24,22 +18,7 @@ import com.tlab.erik_spectre.tootsigymmb.Utilities.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import java.io.*
-import com.google.gson.GsonBuilder
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.internal.schedulers.IoScheduler
-import kotlinx.coroutines.experimental.*
-import org.jetbrains.anko.AnkoAsyncContext
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.doAsyncResult
-import org.jetbrains.anko.uiThread
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import java.lang.Exception
-import java.util.concurrent.Future
+import java.lang.Math.round
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener  {
@@ -49,6 +28,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         GradeTopText.text = vGrade
         GradeBottomText.text = fontGrade?.joinToString(" / ")
+
+        RoutesData.RouteFilters["Grade"] = fontGrade as Any
     }
 
     override fun onStartTrackingTouch(p0: SeekBar?) {
@@ -272,9 +253,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     fun routeTwoClick(view: View) {
+        RoutesData.RouteFilters["Rating"] = round(MainRatingBar.rating)
+        RoutesData.RouteFilters["UserRating"] = round(UserRatingBar.rating)
+
         HoldsCanvas.clear(true)
+
+        val routesList = RoutesData.getFilteredList()
+        FilterResultsText.text = "${routesList?.count()} matches for filter"
         //val grade = "V${GradeSlider.progress}"
-        val route = RandomGenerator.getRandomFromDB("V${GradeSlider.progress}")
+        if (RoutesData.data2 == null || RoutesData.data2?.count() == 0) return
+        val route = RandomGenerator.getRandomFromDB(routesList)
         setRouteDescription(route)
         val data = HoldsCanvas.addRouteFromDB(route)
 //        MQTT.sendData(data)
@@ -289,6 +277,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         RouteRatingText.text = "Rating: ${routeData?.Rating}"
         RouteUserRatingText.text = "User Rating: ${routeData?.UserRating}"
         RouteRepeatsText.text = "Repeats: ${routeData?.Repeats}"
+    }
+
+    fun benchmarkToggle(view: View) {
+        RoutesData.RouteFilters["IsBenchmark"] = benchmarkToggleSwitch.isChecked
+    }
+
+    fun userRatingBarClick(view: View) {
+        RoutesData.RouteFilters["UserRating"] = round(UserRatingBar.rating)
+
+        println("userrating: ${RoutesData.RouteFilters["UserRating"]}")
+    }
+
+    fun mainRatingBarClick(view: View) {
+        RoutesData.RouteFilters["Rating"] = round(MainRatingBar.rating)
+        RoutesData.RouteFilters["UserRating"] = round(UserRatingBar.rating)
+
+        println("rating: ${RoutesData.RouteFilters["Rating"]}")
+
     }
 
     fun setToast(text: String, short: Boolean = true) {
