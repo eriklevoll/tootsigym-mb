@@ -1,5 +1,6 @@
 package com.tlab.erik_spectre.tootsigymmb.Utilities
 
+import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
 import android.widget.Toast
@@ -61,19 +62,23 @@ object RoutesData {
         activity.setToast("Reading routes")
         launch {
             withContext(DefaultDispatcher) { readFile(activity) }
-            activity.runOnUiThread {
-                activity.setToast("Done reading ${data2?.count()} routes")
+            if (data2 == null || data2?.count() == 0) {
+                alertRoutesUpdate(activity)
+            } else {
+                activity.runOnUiThread {
+                    activity.setToast("Done reading ${data2?.count()} routes")
+                }
             }
         }
     }
 
-    fun readFile(activity: MainActivity){
+    private fun readFile(activity: MainActivity){
         val list = activity.fileList()
         val validFile = (ROUTES_FILE_NAME in list)
 
         if (!validFile) return
 
-        val fi = FileInputStream(File(activity.filesDir,"data_routes.txt"))
+        val fi = FileInputStream(File(activity.filesDir, ROUTES_FILE_NAME))
         val oi = ObjectInputStream(fi)
 
         RoutesData.data2 = oi.readObject() as List<Route>
@@ -86,7 +91,6 @@ object RoutesData {
 
         @GET(ROUTES_FILE_FILEURL)
         fun getRoutesList(): Observable<List<Route>>
-
     }
 
     fun downloadRoutes(activity: MainActivity) {
@@ -101,7 +105,7 @@ object RoutesData {
 //
         val subscribe = response.observeOn(AndroidSchedulers.mainThread()).subscribeOn(IoScheduler()).subscribe (
                 { result -> saveDataToInternal(activity, result) },
-                { error -> println("no, $error") }
+                { error -> downloadFailed(activity) }
         )
     }
 
@@ -117,8 +121,12 @@ object RoutesData {
         }
     }
 
-    fun saveFile(activity: MainActivity) {
-        val file = File(activity.filesDir, "data_routes.txt")
+    private fun downloadFailed (activity: MainActivity) {
+        activity.setToast("Download failed")
+    }
+
+    private fun saveFile(activity: MainActivity) {
+        val file = File(activity.filesDir, ROUTES_FILE_NAME)
         val f = FileOutputStream(file)
         val o = ObjectOutputStream(f)
 
@@ -126,6 +134,36 @@ object RoutesData {
 
         o.close()
         f.close()
+    }
+
+    fun getRoutesCount(activity: MainActivity) {
+        if (data2 == null || data2?.count() == 0) {
+            alertRoutesUpdate(activity)
+        } else {
+            activity.setToast("${data2?.count()} routes")
+        }
+    }
+
+    fun alertRoutesUpdate(activity: MainActivity) {
+        activity.let {
+            val builder = AlertDialog.Builder(it)
+            builder.apply {
+                setPositiveButton("Ok") { _, _ ->
+                    downloadRoutes(activity)
+                }
+                setNegativeButton("Cancel") { _, _ ->
+                    println("Clicked cancel")
+                }
+            }
+            builder.setMessage("You have no routes saved. Update now?")
+
+            launch {
+                activity.runOnUiThread {
+                    builder.create()
+                    builder.show()
+                }
+            }
+        }
     }
 }
 

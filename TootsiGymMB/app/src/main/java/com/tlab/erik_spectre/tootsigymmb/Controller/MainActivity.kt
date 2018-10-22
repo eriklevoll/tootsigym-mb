@@ -1,6 +1,8 @@
 package com.tlab.erik_spectre.tootsigymmb.Controller
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.AsyncTask
@@ -256,13 +258,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun routesCountClick(view: View) {
-        val count = RoutesData.data2?.count()
-        setToast("$count routes")
+        RoutesData.getRoutesCount(this)
     }
 
-    fun setToast(text: String) {
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-    }
 
     fun updateRoutesClick(view: View) {
         RoutesData.downloadRoutes(this)
@@ -291,5 +289,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         RouteRatingText.text = "Rating: ${routeData?.Rating}"
         RouteUserRatingText.text = "User Rating: ${routeData?.UserRating}"
         RouteRepeatsText.text = "Repeats: ${routeData?.Repeats}"
+    }
+
+    fun setToast(text: String, short: Boolean = true) {
+        val duration = if (short) Toast.LENGTH_SHORT else Toast.LENGTH_LONG
+        Toast.makeText(this, text, duration).show()
     }
 }
