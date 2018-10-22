@@ -247,11 +247,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         RoutesData.downloadRoutes(this)
     }
 
-    fun routeOneClick(view: View) {
-        //MQTT.sendData(RandomGenerator.getRandomRoute())
-    }
-
-
     fun routeTwoClick(view: View) {
         RoutesData.RouteFilters["Rating"] = round(MainRatingBar.rating)
         RoutesData.RouteFilters["UserRating"] = round(UserRatingBar.rating)
@@ -265,7 +260,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val route = RandomGenerator.getRandomFromDB(routesList)
         setRouteDescription(route)
         val data = HoldsCanvas.addRouteFromDB(route)
-//        MQTT.sendData(data)
+        MQTT.sendData(data)
     }
 
     fun setRouteDescription(route: Route?) {
@@ -281,20 +276,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun benchmarkToggle(view: View) {
         RoutesData.RouteFilters["IsBenchmark"] = benchmarkToggleSwitch.isChecked
-    }
-
-    fun userRatingBarClick(view: View) {
-        RoutesData.RouteFilters["UserRating"] = round(UserRatingBar.rating)
-
-        println("userrating: ${RoutesData.RouteFilters["UserRating"]}")
-    }
-
-    fun mainRatingBarClick(view: View) {
-        RoutesData.RouteFilters["Rating"] = round(MainRatingBar.rating)
-        RoutesData.RouteFilters["UserRating"] = round(UserRatingBar.rating)
-
-        println("rating: ${RoutesData.RouteFilters["Rating"]}")
-
     }
 
     fun setToast(text: String, short: Boolean = true) {
