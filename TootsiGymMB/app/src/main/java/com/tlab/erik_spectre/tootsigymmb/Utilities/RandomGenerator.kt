@@ -118,25 +118,33 @@ object RandomGenerator {
     }
 
     fun getRandomFromDB(vGrade: String): Route? {
+
+        val max = RoutesData.data2?.count() ?: 1
+        val index = getRandomInt(0, max-1)
+
+        println("Num of routes: $max")
+
+        return RoutesData.data2?.get(index)
+
         //val grade = getRandomGrade()
-        val fontGrades = GradeMapping[vGrade]
-        val routes1 = DataParser.getFilteredRoutes(fontGrades?.elementAt(0))
-
-        val joinedList: List<Route>?
-        if (fontGrades?.count() == 1) {
-            joinedList = routes1
-        } else if (fontGrades?.count() == 2) {
-            val routes2 = DataParser.getFilteredRoutes(fontGrades.elementAt(1))
-            if (routes1 == null || routes2 == null) return null
-            joinedList = routes1 + routes2
-        } else {
-            return null
-        }
-
-        if (joinedList == null) return null
-        if (joinedList.isEmpty()) return null
-
-        val index = getRandomInt(0, joinedList.size -1)
-        return joinedList[index]
+//        val fontGrades = GradeMapping[vGrade]
+//        val routes1 = DataParser.getFilteredRoutes(fontGrades?.elementAt(0))
+//
+//        val joinedList: List<Route>?
+//        if (fontGrades?.count() == 1) {
+//            joinedList = routes1
+//        } else if (fontGrades?.count() == 2) {
+//            val routes2 = DataParser.getFilteredRoutes(fontGrades.elementAt(1))
+//            if (routes1 == null || routes2 == null) return null
+//            joinedList = routes1 + routes2
+//        } else {
+//            return null
+//        }
+//
+//        if (joinedList == null) return null
+//        if (joinedList.isEmpty()) return null
+//
+//        val index = getRandomInt(0, joinedList.size -1)
+//        return joinedList[index]
     }
 }

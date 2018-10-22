@@ -1,6 +1,11 @@
 package com.tlab.erik_spectre.tootsigymmb.Utilities
 
+import android.content.Context
+import android.os.AsyncTask
 import com.tlab.erik_spectre.tootsigymmb.Model.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.ObjectInputStream
 
 object DataParser {
 

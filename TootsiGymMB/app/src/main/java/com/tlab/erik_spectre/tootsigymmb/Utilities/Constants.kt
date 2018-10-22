@@ -25,6 +25,10 @@ const val NUM_OF_COLS   = 11
 const val VIEWMODE_GRID = 0
 const val VIEWMODE_DATABASE = 1
 
+const val ROUTES_FILE_NAME = "data_routes.txt"
+const val ROUTES_FILE_BASEURL = "https://s3.eu-west-2.amazonaws.com/"
+const val ROUTES_FILE_FILEURL = "j-bucket0092/mb/data_50p.json"
+
 val GradeMapping: HashMap<String, HashSet<String>> = hashMapOf(
         "V0" to hashSetOf("4"),
         "V1" to hashSetOf("5"),

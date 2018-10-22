@@ -1,7 +1,9 @@
 package com.tlab.erik_spectre.tootsigymmb.Controller
 
+import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
+import android.os.AsyncTask
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -9,7 +11,9 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
 import android.view.*
+import android.widget.ListView
 import android.widget.SeekBar
+import android.widget.Toast
 import com.example.erik_spectre.tootsigymmb.R
 import com.example.erik_spectre.tootsigymmb.R.drawable.*
 import com.tlab.erik_spectre.tootsigymmb.Model.Route
@@ -18,6 +22,22 @@ import com.tlab.erik_spectre.tootsigymmb.Utilities.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import java.io.*
+import com.google.gson.GsonBuilder
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.internal.schedulers.IoScheduler
+import kotlinx.coroutines.experimental.*
+import org.jetbrains.anko.AnkoAsyncContext
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.doAsyncResult
+import org.jetbrains.anko.uiThread
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import java.lang.Exception
+import java.util.concurrent.Future
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener  {
@@ -104,9 +124,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             InitializeUI()
         }
 
-        RoutesData.init("routes.json", application)
-
         HoldsCanvas.updateCanvas()
+
+        RoutesData.readRoutesFromInternal(this)
     }
 
     override fun onResume() {
@@ -235,9 +255,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    fun routeOneClick(view: View) {
-        MQTT.sendData(RandomGenerator.getRandomRoute())
+    fun routesCountClick(view: View) {
+        val count = RoutesData.data2?.count()
+        setToast("$count routes")
     }
+
+    fun setToast(text: String) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+    }
+
+    fun updateRoutesClick(view: View) {
+        RoutesData.downloadRoutes(this)
+    }
+
+    fun routeOneClick(view: View) {
+        //MQTT.sendData(RandomGenerator.getRandomRoute())
+    }
+
 
     fun routeTwoClick(view: View) {
         HoldsCanvas.clear(true)
@@ -245,7 +279,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val route = RandomGenerator.getRandomFromDB("V${GradeSlider.progress}")
         setRouteDescription(route)
         val data = HoldsCanvas.addRouteFromDB(route)
-        MQTT.sendData(data)
+//        MQTT.sendData(data)
     }
 
     fun setRouteDescription(route: Route?) {

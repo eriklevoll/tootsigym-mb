@@ -1,11 +1,59 @@
 package com.tlab.erik_spectre.tootsigymmb.Utilities
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.*
+import android.os.AsyncTask
 import android.widget.ImageView
+import com.squareup.moshi.JsonReader
 import com.tlab.erik_spectre.tootsigymmb.Model.Route
 import com.tlab.erik_spectre.tootsigymmb.Utilities.GestureParser.height
+import java.io.BufferedReader
+import java.io.*
+//import java.io.InputStreamReader
+import java.lang.Exception
+import java.net.HttpURLConnection
+import java.net.URL
 
+
+class ImageDownloader: AsyncTask<String, Void, String>() {
+    override fun doInBackground(vararg p0: String?): String {
+        return try {
+            val url = URL("https://s3.eu-west-2.amazonaws.com/j-bucket0092/mb/data.json")
+            val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
+
+            connection.connect()
+            val stream = connection.inputStream
+
+            val inputStreamReader = InputStreamReader(stream)
+            val bufferedReader = BufferedReader(inputStreamReader)
+
+            bufferedReader.readText()
+
+        } catch (e: Exception) {
+            println("Failed: ${e.message}")
+            ""
+        }
+    }
+
+    override fun onPostExecute(result: String?) {
+        super.onPostExecute(result)
+    }
+}
+
+class initJson: AsyncTask<Context, Void, String>() {
+    override fun doInBackground(vararg p0: Context): String {
+        val inputStream = p0[0].openFileInput("routes9.json")
+        val inputString = inputStream.bufferedReader().use { it.readText() }
+        inputStream.close()
+        RoutesData.initString(inputString)
+        return inputString
+    }
+
+    override fun onPostExecute(result: String) {
+        super.onPostExecute(result)
+    }
+}
 
 @SuppressLint("StaticFieldLeak")
 object HoldsCanvas {

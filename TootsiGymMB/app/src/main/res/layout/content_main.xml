@@ -60,19 +60,51 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/routeTwoBtn"
+        android:id="@+id/routeTwoBtn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:onClick="routeTwoClick"
+        android:text="Get Random Route (DB)"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/routeOneBtn" />
+
+        <Button
+            android:id="@+id/route3Btn"
             android:layout_width="0dp"
+            android:visibility="gone"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:onClick="routeTwoClick"
-            android:text="Get Random Route (DB)"
+            android:onClick="setDownloadedClick"
+            android:text="Read file"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/routeOneBtn" />
+            app:layout_constraintTop_toBottomOf="@+id/GradeBottomText" />
+
+        <Button
+            android:id="@+id/route4Btn"
+            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:onClick="doSthClick"
+            android:text="Download file"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/route3Btn" />
 
         <SeekBar
             android:id="@+id/GradeSlider"
